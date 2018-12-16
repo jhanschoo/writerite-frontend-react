@@ -20,11 +20,48 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <script src="https://apis.google.com/js/platform.js?onload=gapiAsyncInit" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaAsyncInit&render=explicit" async defer></script>
   </head>
   <body>
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+    <div id="fb-root"></div>
+    <script>
+      const createDeferred = function() {
+        var override = {};
+        var q = new Promise((resolve, reject) => {
+          override.resolve = resolve;
+          override.reject = reject;
+        });
+        q.override = override;
+        return q;
+      };
+      const gapiDeferred = createDeferred();
+      const FBDeferred = createDeferred();
+      const grecaptchaDeferred = createDeferred();
+      function gapiAsyncInit() {
+        gapi.load('auth2', function() {
+          gapi.auth2.init({
+            client_id: "%REACT_APP_GOOGLE_OAUTH2_CLIENT_ID%.apps.googleusercontent.com",
+          }).then(() => gapiDeferred.override.resolve(gapi));
+        });
+      }
+      function recaptchaAsyncInit() {
+        grecaptchaDeferred.override.resolve(grecaptcha);
+      }
+      function fbAsyncInit() {
+        FBDeferred.override.resolve(FB);
+      }
+    </script>
+    <script async defer>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.1&appId=%REACT_APP_FB_APP_ID%&autoLogAppEvents=1';
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
     <div id="root"></div>
     <!--
       This HTML file is a template.

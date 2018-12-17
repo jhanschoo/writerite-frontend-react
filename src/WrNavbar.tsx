@@ -5,11 +5,11 @@ import { Menu } from 'semantic-ui-react';
 class WrNavbar extends Component {
   public render() {
     return (
-    <Menu>
-      <Menu.Item as={Link} header={true} to="/">
-        WriteRite
+      <Menu>
+        <Menu.Item as={Link} header={true} to="/">
+          WriteRite
       </Menu.Item>
-    </Menu>
+      </Menu>
     );
   }
 }

@@ -1,14 +1,37 @@
 import React, { Component, SyntheticEvent } from 'react';
+
 import { Mutation, MutationFn, OperationVariables } from 'react-apollo';
-import { connect } from 'react-redux';
 import gql from 'graphql-tag';
-import { Divider, Segment, Form, Input, Label, Container } from 'semantic-ui-react';
-import { Field, Formik, FormikProps, FormikBag, FormikActions, FormikErrors, FormikTouched } from 'formik';
+
+import { connect } from 'react-redux';
+
+import { withRouter, RouteComponentProps } from 'react-router';
+
+import {
+  Field, Formik, FormikProps, FormikErrors, FormikTouched,
+} from 'formik';
 import * as yup from 'yup';
+
+import {
+  Divider, Segment, Form, Input, Label, Container,
+} from 'semantic-ui-react';
+
+import { OptionalSigninData, SigninAction, createSignin } from './actions';
+import { WrState } from '../store';
 
 declare var gapiDeferred: Promise<any>;
 declare var grecaptchaDeferred: Promise<any>;
 declare var FBDeferred: Promise<any>;
+
+type OwnProps = object;
+
+interface DispatchProps {
+  createSignin: (data: OptionalSigninData) => SigninAction;
+}
+
+type StateProps = object;
+
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps<any>;
 
 const SIGNIN = gql`
 mutation Signin(
@@ -76,6 +99,20 @@ const handleFacebookSignin = (
   return null;
 };
 
+const handleLocalSignin = (
+  mutate: MutationFn<any, OperationVariables>,
+) => (values: FormValues) => {
+  mutate({
+    variables: {
+      email: values.email,
+      token: values.recaptcha,
+      authorizer: 'LOCAL',
+      identifier: values.password,
+    },
+  });
+  return null;
+};
+
 interface FormValues {
   email: string;
   password: string;
@@ -113,13 +150,11 @@ const formInitialValues: FormValues = {
   isSignin: true,
 };
 
-class WrSignin extends Component {
+class WrSignin extends Component<Props> {
 
   public state = {
     isSignin: formInitialValues.isSignin,
   };
-
-  private recaptchaCallback = this.dummyRecaptchaCallback;
 
   public componentDidMount = () => {
     this.renderReCaptcha();
@@ -142,6 +177,7 @@ class WrSignin extends Component {
       this.recaptchaCallback = (gRecaptchaResponse: string) => {
         setFieldTouched('recaptcha');
         setFieldValue('recaptcha', gRecaptchaResponse || '');
+        return null;
       };
       const showError = (
         key: keyof FormikErrors<FormValues> & keyof FormikTouched<FormValues>,
@@ -232,39 +268,32 @@ class WrSignin extends Component {
     };
     const signinChild = (
       mutate: MutationFn<any, OperationVariables>,
-      { data }: { data?: any },
-    ) => (
+    ) => {
+      return (
         <Formik
           initialValues={formInitialValues}
-          onSubmit={this.handleSubmit(mutate)}
+          onSubmit={handleLocalSignin(mutate)}
           validationSchema={formSchema}
         >
           {renderFormFragment(mutate)}
         </Formik>
       );
+    };
     return (
       <Segment>
-        <Mutation mutation={SIGNIN}>
+        <Mutation
+          mutation={SIGNIN}
+          onCompleted={this.handleSigninSuccess}
+        >
           {signinChild}
         </Mutation>
       </Segment>
     );
   }
 
-  public handleSubmit = (
-    mutate: MutationFn<any, OperationVariables>,
-  ) => (values: FormValues, formikBag: FormikActions<any>) => {
-    mutate({
-      variables: {
-        email: values.email,
-        token: values.recaptcha,
-        authorizer: 'LOCAL',
-        identifier: values.password,
-      },
-    });
-  }
-
-  private toggleSignin = ({ setFieldTouched, setFieldValue }: FormikProps<FormValues>) => {
+  private toggleSignin = (
+    { setFieldTouched, setFieldValue }: FormikProps<FormValues>,
+  ) => {
     return (event: SyntheticEvent) => {
       event.preventDefault();
       const isSignin = !this.state.isSignin;
@@ -277,6 +306,8 @@ class WrSignin extends Component {
     };
   }
 
+  private recaptchaCallback = (gRecaptchaResponse: string): null => null;
+
   private renderReCaptcha = () => {
     if (grecaptchaDeferred) {
       grecaptchaDeferred.then((grecaptcha) => {
@@ -288,9 +319,22 @@ class WrSignin extends Component {
     }
   }
 
-  private dummyRecaptchaCallback(gRecaptchaResponse: string): void {
-    // will be replaced in this.recaptchaCallback once form is rendered.
+  private handleSigninSuccess = ({ signin }: { signin: any }) => {
+    this.props.createSignin(signin);
+    if (signin) {
+      this.props.history.push('/dashboard');
+    }
   }
 }
 
-export default connect()(WrSignin);
+const mapStateToProps = null;
+
+const mapDispatchToProps: DispatchProps = {
+  createSignin,
+};
+
+export default withRouter<OwnProps & RouteComponentProps<any>>(
+  connect<
+    StateProps, DispatchProps, OwnProps & RouteComponentProps<any>, WrState
+  >(mapStateToProps, mapDispatchToProps)(WrSignin),
+);

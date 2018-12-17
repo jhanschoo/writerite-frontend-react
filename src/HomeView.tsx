@@ -7,30 +7,30 @@ import WrSignin from './signin/WrSignin';
 class HomeView extends Component {
   public render() {
     return (
-    <div>
-      <Segment as="section" vertical={true} basic={true}>
-        <Container>
-          <WrNavbar />
-        </Container>
-      </Segment>
-      <Segment as="section" vertical={true} basic={true}>
-        <Container>
-          <Grid stackable={true} divided={true} container={true}>
-            <Grid.Row>
-              <Grid.Column width={9} textAlign="center" verticalAlign="middle">
-                <Header as="h1">
-                  <em>Writerite</em> is for learning with flashcards and
-                  friends.
+      <div>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <WrNavbar />
+          </Container>
+        </Segment>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <Grid stackable={true} divided={true} container={true}>
+              <Grid.Row>
+                <Grid.Column width={9} textAlign="center" verticalAlign="middle">
+                  <Header as="h1">
+                    <em>Writerite</em> is for learning with flashcards and
+                    friends.
                 </Header>
-              </Grid.Column>
-              <Grid.Column width={7}>
+                </Grid.Column>
+                <Grid.Column width={7}>
                   <WrSignin />
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Container>
-      </Segment>
-    </div>
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+          </Container>
+        </Segment>
+      </div>
     );
   }
 }

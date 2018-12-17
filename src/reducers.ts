@@ -1,8 +1,6 @@
 import { combineReducers } from 'redux';
+import { signin } from './signin/reducers';
 
-export const rootReducer = (state = {}) => {
-  return state;
-};
-
-// combineReducers({
-// });
+export const rootReducer = combineReducers({
+  signin,
+});

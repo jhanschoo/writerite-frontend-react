@@ -1,7 +1,11 @@
 import { createStore, Store } from 'redux';
 import { rootReducer } from './reducers';
 
-export type WrState = object;
+import { SigninState } from './signin/reducers';
+
+export interface WrState {
+  signin?: SigninState;
+}
 
 type WrStore = Store<WrState>;
 

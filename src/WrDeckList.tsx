@@ -9,7 +9,7 @@ interface DeckResult {
   name: string;
 }
 
-interface DecksResult {
+interface RoomsResult {
   decks: DeckResult[];
 }
 
@@ -53,7 +53,7 @@ class SubscriptionHelper extends PureComponent<DeckListProps> {
   public readonly componentDidMount = () => {
     this.props.subscribeToMore({
       document: DECK_UPDATES,
-      updateQuery: (prev: DecksResult, { subscriptionData }: {
+      updateQuery: (prev: RoomsResult, { subscriptionData }: {
         subscriptionData?: {
           data?: DeckUpdatesData,
         },
@@ -68,7 +68,7 @@ class SubscriptionHelper extends PureComponent<DeckListProps> {
         if (deckUpdates.mutation === 'CREATED') {
           decks.push(deckUpdates.new);
         }
-        return Object.assign<object, DecksResult, DecksResult>(
+        return Object.assign<object, RoomsResult, RoomsResult>(
           {}, prev, { decks },
         );
       },
@@ -80,7 +80,7 @@ class SubscriptionHelper extends PureComponent<DeckListProps> {
 
 const renderListWithSubscription = ({
   subscribeToMore, loading, error, data,
-}: QueryResult<DecksResult, OperationVariables>) => {
+}: QueryResult<RoomsResult, OperationVariables>) => {
   if (loading) {
     return 'Loading...';
   }

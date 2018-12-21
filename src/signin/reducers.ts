@@ -8,7 +8,9 @@ export const initialState: SigninState = {
   data: null,
 };
 
-export const signin = (state: SigninState = initialState, action: SigninAction): SigninState => {
+export const signin = (
+  state: SigninState = initialState, action: SigninAction,
+): SigninState => {
   switch (action.type) {
     case ActionTypes.SIGNIN:
       return Object.assign({}, state, {

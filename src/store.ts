@@ -4,7 +4,7 @@ import { rootReducer } from './reducers';
 import { SigninState } from './signin/reducers';
 
 export interface WrState {
-  signin?: SigninState;
+  readonly signin?: SigninState;
 }
 
 type WrStore = Store<WrState>;

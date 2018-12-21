@@ -5,15 +5,20 @@ import { setContext } from 'apollo-link-context';
 import { createPersistedQueryLink } from 'apollo-link-persisted-queries';
 import { WebSocketLink } from 'apollo-link-ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
+import MessageTypes from 'subscriptions-transport-ws/dist/message-types';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 import { OperationDefinitionNode } from 'graphql';
 import { withClientState } from 'apollo-link-state';
 
+import { store } from './store';
+
 // c.f. https://github.com/Akryum/vue-cli-plugin-apollo/blob/master/graphql-client/src/index.js
 
 const getAuth = () => {
-  const token = window && window.localStorage.getItem('apollo-token');
+  const storeState = store.getState();
+  const token = storeState.signin
+    && storeState.signin.data && storeState.signin.data.token;
   return token ? `Bearer ${token}` : '';
 };
 
@@ -64,8 +69,9 @@ const wsClient = new SubscriptionClient(
   process.env.REACT_APP_GRAPHQL_WS, {
     reconnect: true,
     connectionParams: () => {
-      const authorization = getAuth();
-      return authorization ? { authorization } : {};
+      // tslint:disable-next-line: variable-name
+      const Authorization = getAuth();
+      return Authorization ? { Authorization } : {};
     },
   },
 );
@@ -95,3 +101,29 @@ const client = new ApolloClient({
 client.onResetStore(() => Promise.resolve(stateLink.writeDefaults()));
 
 export { client, wsClient };
+
+// see following for authentication strategies. Note we are using
+// a private API due to the inability of the public API to handle
+// reconnects
+// https://github.com/apollographql/subscriptions-transport-ws/issues/171
+export const restartWsConnection = (): void => {
+  // Copy current operations
+  const operations = Object.assign({}, wsClient.operations);
+
+  // Close connection
+  wsClient.close();
+
+  // Open a new one
+  // @ts-ignore
+  wsClient.connect();
+
+  // Push all current operations to the new connection
+  Object.keys(operations).forEach((id) => {
+    // @ts-ignore
+    wsClient.sendMessage(
+      id,
+      MessageTypes.GQL_START,
+      operations[id].options,
+    );
+  });
+};

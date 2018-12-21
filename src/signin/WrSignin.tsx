@@ -16,6 +16,7 @@ import {
   Divider, Segment, Form, Input, Label, Container,
 } from 'semantic-ui-react';
 
+import { restartWsConnection } from '../apolloClient';
 import { OptionalSigninData, SigninAction, createSignin } from './actions';
 import { WrState } from '../store';
 
@@ -161,6 +162,8 @@ class WrSignin extends Component<Props> {
   }
 
   public render = () => {
+    const { isSignin } = this.state;
+    const { handleSigninSuccess, toggleSignin } = this;
     const renderFormFragment = (
       mutate: MutationFn<any, OperationVariables>,
     ) => (props: FormikProps<FormValues>) => {
@@ -232,7 +235,7 @@ class WrSignin extends Component<Props> {
           </Form.Field>
           <Form.Field
             error={passwordShowError()}
-            style={this.state.isSignin ? null : { display: 'none' }}
+            style={isSignin ? null : { display: 'none' }}
           >
             <Input
               onChange={handleChange}
@@ -245,7 +248,7 @@ class WrSignin extends Component<Props> {
           </Form.Field>
           <Form.Field
             error={showError('recaptcha')}
-            style={this.state.isSignin ? null : { display: 'none' }}
+            style={isSignin ? null : { display: 'none' }}
           >
             <Container text={true} textAlign="center" fluid={true}>
               <div id="g-recaptcha" style={{ display: 'inline-block' }} />
@@ -253,13 +256,13 @@ class WrSignin extends Component<Props> {
             </Container>
           </Form.Field>
           <Form.Button type="submit" fluid={true} primary={true}>
-            {this.state.isSignin ? 'Sign in with Password' : 'Login with Password'}
+            {isSignin ? 'Sign in with Password' : 'Login with Password'}
           </Form.Button>
           <div>
             <p>
-              {this.state.isSignin ? 'Existing user? ' : 'New user? '}
-              <a href="#" onClick={this.toggleSignin(props)}>
-                {this.state.isSignin ? 'Login' : 'Sign in'}
+              {isSignin ? 'Existing user? ' : 'New user? '}
+              <a href="#" onClick={toggleSignin(props)}>
+                {isSignin ? 'Login' : 'Sign in'}
               </a>
             </p>
           </div>
@@ -283,7 +286,7 @@ class WrSignin extends Component<Props> {
       <Segment>
         <Mutation
           mutation={SIGNIN}
-          onCompleted={this.handleSigninSuccess}
+          onCompleted={handleSigninSuccess}
         >
           {signinChild}
         </Mutation>
@@ -295,14 +298,16 @@ class WrSignin extends Component<Props> {
     { setFieldTouched, setFieldValue }: FormikProps<FormValues>,
   ) => {
     return (event: SyntheticEvent) => {
+      const { isSignin } = this.state;
+      const { setState } = this;
+      const newIsSignin = !isSignin;
       event.preventDefault();
-      const isSignin = !this.state.isSignin;
       // note that setState is async
-      this.setState(Object.assign({}, this.state, {
-        isSignin,
+      setState(Object.assign({}, this.state, {
+        isSignin: newIsSignin,
       }));
       setFieldTouched('isSignin');
-      setFieldValue('isSignin', isSignin);
+      setFieldValue('isSignin', newIsSignin);
     };
   }
 
@@ -320,9 +325,12 @@ class WrSignin extends Component<Props> {
   }
 
   private handleSigninSuccess = ({ signin }: { signin: any }) => {
-    this.props.createSignin(signin);
+    // tslint:disable-next-line: no-shadowed-variable
+    const { createSignin, history } = this.props;
+    createSignin(signin);
     if (signin) {
-      this.props.history.push('/dashboard');
+      restartWsConnection();
+      history.push('/dashboard');
     }
   }
 }

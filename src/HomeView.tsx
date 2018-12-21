@@ -5,7 +5,7 @@ import WrNavbar from './WrNavbar';
 import WrSignin from './signin/WrSignin';
 
 class HomeView extends Component {
-  public render() {
+  public readonly render = () => {
     return (
       <div>
         <Segment as="section" vertical={true} basic={true}>

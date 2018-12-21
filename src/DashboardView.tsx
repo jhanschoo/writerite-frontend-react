@@ -3,26 +3,40 @@ import { RouteComponentProps, Redirect, Switch, Route } from 'react-router';
 import { connect } from 'react-redux';
 import { Container, Segment } from 'semantic-ui-react';
 
+import { WrState } from './store';
+import { SigninState, initialState } from './signin/reducers';
+
 import DeckView from './DeckView';
 import WrNavbar from './WrNavbar';
+import { User } from './signin/actions';
 
-class DashboardView extends Component<RouteComponentProps<any>> {
-  public render() {
+type OwnProps = RouteComponentProps<any>;
+
+type DispatchProps = object;
+
+interface StateProps {
+  readonly user: User | null;
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
+
+class DashboardView extends Component<Props> {
+  public readonly render = () => {
     const { match } = this.props;
     return (
-      <div>
-        <Segment as="section" vertical={true} basic={true}>
-          <Container>
-            <WrNavbar />
-          </Container>
-        </Segment>
-        <Switch>
-          <Redirect from={match.url} exact={true} to={`${match.url}/deck`} />
-          <Route path={`${match.url}/deck`} component={DeckView} />
-        </Switch>
-      </div>
+      <Switch>
+        <Redirect from={match.url} exact={true} to={`${match.url}/deck`} />
+        <Route path={`${match.url}/deck`} component={DeckView} />
+      </Switch>
     );
   }
 }
 
-export default connect()(DashboardView);
+const mapStateToProps = (state: WrState): StateProps => {
+  const user = (state.signin && state.signin.data && state.signin.data.user) || null;
+  return { user };
+};
+
+export default connect<
+  StateProps, DispatchProps, OwnProps, WrState
+>(mapStateToProps)(DashboardView);

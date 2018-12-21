@@ -80,12 +80,12 @@ class SubscriptionHelper extends PureComponent<DeckListProps> {
 
 const renderListWithSubscription = ({
   subscribeToMore, loading, error, data,
-}: QueryResult<any, OperationVariables>) => {
+}: QueryResult<DecksResult, OperationVariables>) => {
   if (loading) {
     return 'Loading...';
   }
-  if (error) {
-    return `Error! ${error.message}`;
+  if (error || !data) {
+    return `Error! ${error && error.message}`;
   }
   const list = data.decks.map(({ id, name }: { id: string, name: string }) => (
     <p key={id}>{name}</p>

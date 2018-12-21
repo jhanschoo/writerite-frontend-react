@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import { RouteComponentProps, Redirect, Switch, Route } from 'react-router';
 import { connect } from 'react-redux';
-import { Container, Segment } from 'semantic-ui-react';
 
 import { WrState } from './store';
-import { SigninState, initialState } from './signin/reducers';
 
-import DeckView from './DeckView';
-import WrNavbar from './WrNavbar';
+import DeckView from './deck/DeckView';
 import { User } from './signin/actions';
 
 type OwnProps = RouteComponentProps<any>;

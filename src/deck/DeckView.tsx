@@ -1,27 +1,15 @@
 import React, { Component } from 'react';
 
-import { RouteComponentProps } from 'react-router';
-import { connect } from 'react-redux';
+import { MutationFn, Mutation } from 'react-apollo';
 
-import { MutationFn, OperationVariables, Mutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { Container, Segment, Menu, Input, Icon } from 'semantic-ui-react';
 
-import { Container, Segment, Menu, Input, Button, Form, Icon } from 'semantic-ui-react';
-
-import WrNavbar from './WrNavbar';
+import WrNavbar from '../WrNavbar';
 import WrDeckList from './WrDeckList';
-
-const DECK_CREATE = gql`
-mutation DeckCreate($name: String!) {
-  deckSave(name: $name) {
-    id
-    name
-  }
-}
-`;
+import { DECK_CREATE_MUTATION, DeckCreateData, DeckCreateVariables } from './gqlTypes';
 
 const handleNewDeck = (
-  mutate: MutationFn<any, OperationVariables>,
+  mutate: MutationFn<DeckCreateData, DeckCreateVariables>,
 ) => () => {
   mutate({
     variables: { name: 'deck1' },
@@ -29,21 +17,21 @@ const handleNewDeck = (
   return null;
 };
 const createDeckButton = (
-  mutate: MutationFn<any, OperationVariables>,
+  mutate: MutationFn<DeckCreateData, DeckCreateVariables>,
 ) => (
     <Menu.Item onClick={handleNewDeck(mutate)}>
       <Icon name="plus" /> New Deck
     </Menu.Item>
   );
 
-class DeckView extends Component<RouteComponentProps<any>> {
+class DeckView extends Component {
   public readonly render = () => {
     return (
       <div>
         <Segment as="section" vertical={true} basic={true}>
           <Container>
             <WrNavbar dashboardPage="Deck">
-              <Mutation mutation={DECK_CREATE}>
+              <Mutation mutation={DECK_CREATE_MUTATION}>
                 {createDeckButton}
               </Mutation>
               <Menu.Item>
@@ -67,4 +55,4 @@ class DeckView extends Component<RouteComponentProps<any>> {
   }
 }
 
-export default connect()(DeckView);
+export default DeckView;

@@ -32,7 +32,7 @@ interface DispatchProps {
 
 type StateProps = object;
 
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps<any>;
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps;
 
 const SIGNIN = gql`
 mutation Signin(
@@ -341,8 +341,8 @@ const mapDispatchToProps: DispatchProps = {
   createSignin,
 };
 
-export default withRouter<OwnProps & RouteComponentProps<any>>(
+export default withRouter<OwnProps & RouteComponentProps>(
   connect<
-    StateProps, DispatchProps, OwnProps & RouteComponentProps<any>, WrState
+    StateProps, DispatchProps, OwnProps & RouteComponentProps, WrState
   >(mapStateToProps, mapDispatchToProps)(WrSignin),
 );

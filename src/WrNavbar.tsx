@@ -5,7 +5,7 @@ import { Menu, Dropdown } from 'semantic-ui-react';
 
 import { WrState } from './store';
 import {
-  User, createSignout, SigninAction,
+  CurrentUser, createSignout, SigninAction,
 } from './signin/actions';
 import { restartWsConnection } from './apolloClient';
 
@@ -18,7 +18,7 @@ interface DispatchProps {
 }
 
 interface StateProps {
-  readonly user: User | null;
+  readonly user: CurrentUser | null;
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
@@ -30,7 +30,7 @@ const renderDashboardNav = (dashboardPage?: string) => {
         <Dropdown.Item as={NavLink} to="/dashboard/deck">
           Decks
         </Dropdown.Item>
-        <Dropdown.Item as={NavLink} to="/dashboard/rooms">
+        <Dropdown.Item as={NavLink} to="/dashboard/room">
           Rooms
         </Dropdown.Item>
       </Dropdown.Menu>
@@ -43,7 +43,7 @@ class WrNavbar extends Component<Props> {
     const { user, dashboardPage, children } = this.props;
     const { renderLogout } = this;
     return (
-      <Menu>
+      <Menu stackable={true}>
         <Menu.Item as={Link} header={true} to="/">
           WriteRite
         </Menu.Item>

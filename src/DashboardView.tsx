@@ -5,14 +5,15 @@ import { connect } from 'react-redux';
 import { WrState } from './store';
 
 import DeckView from './deck/DeckView';
-import { User } from './signin/actions';
+import RoomView from './room/RoomView';
+import { CurrentUser } from './signin/actions';
 
-type OwnProps = RouteComponentProps<any>;
+type OwnProps = RouteComponentProps;
 
 type DispatchProps = object;
 
 interface StateProps {
-  readonly user: User | null;
+  readonly user: CurrentUser | null;
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
@@ -24,6 +25,7 @@ class DashboardView extends Component<Props> {
       <Switch>
         <Redirect from={match.url} exact={true} to={`${match.url}/deck`} />
         <Route path={`${match.url}/deck`} component={DeckView} />
+        <Route path={`${match.url}/room`} component={RoomView} />
       </Switch>
     );
   }

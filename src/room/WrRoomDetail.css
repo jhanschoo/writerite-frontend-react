@@ -1,0 +1,4 @@
+.content.room-content {
+  height: 60vh;
+  overflow-y: scroll;
+}

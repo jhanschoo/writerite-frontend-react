@@ -1,11 +1,41 @@
 import gql from 'graphql-tag';
+import { CurrentUser } from '../signin/actions';
+
+export interface User {
+  id: string;
+  email: string;
+}
 
 export interface Room {
   id: string;
   name: string;
 }
 
-export const DECKS_QUERY = gql`
+export interface RoomDetail extends Room {
+  id: string;
+  name: string;
+  owner: CurrentUser;
+  occupants: CurrentUser[];
+}
+
+export const ROOM_QUERY = gql`
+query Room($roomId: ID!) {
+  room(id: $roomId) {
+    id
+    name
+    owner {
+      id
+      email
+    }
+    occupants {
+      id
+      email
+    }
+  }
+}
+`;
+
+export const ROOMS_QUERY = gql`
 query Rooms {
   rooms {
     id
@@ -13,6 +43,14 @@ query Rooms {
   }
 }
 `;
+
+export interface RoomVariables {
+  roomId: string;
+}
+
+export interface RoomData {
+  room: RoomDetail;
+}
 
 export interface RoomsData {
   rooms: Room[];
@@ -57,3 +95,14 @@ export type RoomUpdatesPayload = RoomCreated;
 export interface RoomUpdatesData {
   roomUpdates: RoomUpdatesPayload;
 }
+
+// Room Message
+
+export const ROOM_MESSAGE_CREATE = gql`
+mutation RoomMessageCreate($roomId: ID! $content: String!) {
+  roomMessageCreate(roomId: $roomId messageContent: $content) {
+    id
+    content
+  }
+}
+`;

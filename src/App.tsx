@@ -3,7 +3,7 @@ import { Switch, Route, Redirect, withRouter, RouteComponentProps } from 'react-
 import { connect } from 'react-redux';
 
 import { WrState } from './store';
-import { User } from './signin/actions';
+import { CurrentUser } from './signin/actions';
 
 import DashboardView from './DashboardView';
 import HomeView from './HomeView';
@@ -13,11 +13,11 @@ type OwnProps = object;
 type DispatchProps = object;
 
 interface StateProps {
-  readonly user: User | null;
+  readonly user: CurrentUser | null;
 }
 
 
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps<any>;
+type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps;
 
 // tslint:disable-next-line: variable-name
 const App = (props: Props) => {
@@ -38,8 +38,8 @@ const mapStateToProps = (state: WrState): StateProps => {
 
 // withRouter decorator necessary for routing to work properly.
 // see: https://stackoverflow.com/questions/46036809
-export default withRouter<OwnProps & RouteComponentProps<any>>(
+export default withRouter<OwnProps & RouteComponentProps>(
   connect<
-    StateProps, {}, OwnProps & RouteComponentProps<any>
+    StateProps, {}, OwnProps & RouteComponentProps
   >(mapStateToProps)(App),
 );

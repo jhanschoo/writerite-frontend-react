@@ -2,7 +2,7 @@ export enum ActionTypes {
   SIGNIN = 'SIGNIN',
 }
 
-export interface User {
+export interface CurrentUser {
   readonly email: string;
   readonly id: string;
   readonly roles: string[];
@@ -10,7 +10,7 @@ export interface User {
 
 interface SigninData {
   readonly token: string;
-  readonly user: User;
+  readonly user: CurrentUser;
 }
 
 export type OptionalSigninData = SigninData | null;

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, Dropdown } from 'semantic-ui-react';
+import { Menu, Dropdown, Image } from 'semantic-ui-react';
 
 import { WrState } from './store';
 import {
   CurrentUser, createSignout, SigninAction,
 } from './signin/actions';
 import { restartWsConnection } from './apolloClient';
+import { emailToGravatarLink } from './util';
 
 interface OwnProps {
   readonly dashboardPage?: string;
@@ -50,7 +51,7 @@ class WrNavbar extends Component<Props> {
         {user && renderDashboardNav(dashboardPage)}
         {children}
         <Menu.Menu position="right">
-          {user && renderLogout()}
+          {renderLogout()}
         </Menu.Menu>
       </Menu>
     );
@@ -58,15 +59,22 @@ class WrNavbar extends Component<Props> {
 
   private readonly renderLogout = () => {
     // tslint:disable-next-line: no-shadowed-variable
-    const { createSignout } = this.props;
+    const { createSignout, user } = this.props;
+    if (!user) {
+      return null;
+    }
     const signoutAndRestartWs = () => {
       createSignout();
       restartWsConnection();
     };
     return (
-      <Menu.Item onClick={signoutAndRestartWs}>
-      Log out
-      </Menu.Item>
+      <Dropdown item={true} text={user.email}>
+        <Dropdown.Menu>
+          <Dropdown.Item onClick={signoutAndRestartWs}>
+            Sign out
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 }

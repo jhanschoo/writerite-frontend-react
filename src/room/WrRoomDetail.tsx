@@ -1,18 +1,20 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
-import { SubscribeToMoreOptions } from 'apollo-client';
+import { Segment, Container, Feed, Card, Placeholder } from 'semantic-ui-react';
 
-import { Segment, Container, Feed, Card } from 'semantic-ui-react';
-
-import WrNavbar from '../WrNavbar';
 import { withRouter, RouteComponentProps } from 'react-router';
 
-import './WrRoomDetail.css';
 import { Query, QueryResult } from 'react-apollo';
 import { ROOM_QUERY, RoomData, RoomVariables } from './gqlTypes';
+
 import { connect } from 'react-redux';
 import { WrState } from '../store';
 import { CurrentUser } from '../signin/actions';
+
+import WrNavbar from '../WrNavbar';
+import WrRoomMessageInput from './WrRoomMessageInput';
+import './WrRoomDetail.css';
+import WrRoomFeed from './WrRoomFeed';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
@@ -24,68 +26,61 @@ interface StateProps {
   readonly user: CurrentUser | null;
 }
 
-const renderRoom = ({
-  subscribeToMore, loading, error, data,
-}: QueryResult<RoomData, RoomVariables>) => {
-  if (loading) {
-    return 'Loading...';
-  }
-  if (error || !data) {
-    return `Error! ${error && error.message}`;
-  }
-  const { name, occupants, owner } = data.room;
-  const occupantEmails = occupants.map(({ email }) => email).sort().join(', ');
-  const formattedOccupantEmails = occupantEmails
-    && <Card.Meta>Also in this room: {occupantEmails}</Card.Meta>;
-  return (
-    <>
-      <Segment as="section" vertical={true} basic={true}>
-        <Container>
-          <WrNavbar dashboardPage="Room" />
-        </Container>
-      </Segment>
-      <Segment as="section" vertical={true} basic={true}>
-        <Container>
-          <Card fluid={true}>
-            <Card.Content>
-              <Card.Header>{name}</Card.Header>
-              <Card.Meta>Hosted by: {owner.email}</Card.Meta>
-              {formattedOccupantEmails}
-            </Card.Content>
-            <Card.Content className="room-content">
-              <Feed />
-            </Card.Content>
-            <Card.Content>
-              Dumb shit
-            </Card.Content>
-          </Card>
-        </Container>
-      </Segment>
-    </>
-  );
-};
+type Props = StateProps & DispatchProps & OwnProps;
 
-const formatData = ({ user, message, id }: any) => (
-  <Feed.Event key={id}>
-    <Feed.Content>
-      <Feed.Summary>
-        {user}
-      </Feed.Summary>
-      <Feed.Extra text={true}>
-        {message}
-      </Feed.Extra>
-    </Feed.Content>
-  </Feed.Event>
-);
+class WrRoomDetail extends PureComponent<Props> {
 
-class WrRoomDetail extends Component<RoomDetailRouteProps> {
   public readonly render = () => {
     const { match } = this.props;
     const { roomId } = match.params;
+    const { renderRoom } = this;
     return (
       <Query query={ROOM_QUERY} variables={{ roomId }}>
         {renderRoom}
       </Query>
+    );
+  }
+
+  private renderRoom = ({
+    subscribeToMore, loading, error, data,
+  }: QueryResult<RoomData, RoomVariables>) => {
+    const { name, occupants, owner } = (data && data.room) || {
+      name: null,
+      occupants: null,
+      owner: null,
+    };
+    const occupantEmails = occupants
+      && occupants.map(({ email }) => email).sort().join(', ');
+    const formattedOccupantEmails = occupantEmails
+      && <Card.Meta>Also in this room: {occupantEmails}</Card.Meta>;
+    const formattedRoomName = name || 'Loading...';
+    const formattedOwnerInfo = (owner)
+      ? `Hosted by: ${owner.email}`
+      : <Placeholder><Placeholder.Line length="short" /></Placeholder>;
+    const formattedError = error
+      && <Card.Content>Error: {error.message}</Card.Content>;
+    return (
+      <>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <WrNavbar dashboardPage="Room" />
+          </Container>
+        </Segment>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <Card fluid={true}>
+              <Card.Content>
+                <Card.Header>{formattedRoomName}</Card.Header>
+                <Card.Meta>{formattedOwnerInfo}</Card.Meta>
+                {formattedOccupantEmails}
+              </Card.Content>
+              {formattedError}
+              <WrRoomFeed />
+              <WrRoomMessageInput />
+            </Card>
+          </Container>
+        </Segment>
+      </>
     );
   }
 }

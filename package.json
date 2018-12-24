@@ -16,6 +16,7 @@
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
     "jest-dom": "^3.0.0",
+    "md5": "^2.2.1",
     "node-sass": "^4.11.0",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
@@ -35,6 +36,7 @@
     "@types/apollo-upload-client": "^8.1.1",
     "@types/graphql": "^14.0.3",
     "@types/jest": "^23.3.10",
+    "@types/md5": "^2.1.33",
     "@types/node": "^10.12.15",
     "@types/react": "^16.7.17",
     "@types/react-dom": "^16.0.11",
@@ -62,5 +64,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "jest": {
+    "watchPathIgnorePatterns": ["<rootDir>/node_modules/**/*"]
+  }
 }

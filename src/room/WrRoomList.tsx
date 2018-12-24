@@ -14,11 +14,11 @@ import {
 } from './gqlTypes';
 import WrNavbar from '../WrNavbar';
 
-interface RoomListProps {
+interface SubscriptionProps {
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
 }
 
-class SubscriptionHelper extends PureComponent<RoomListProps> {
+class SubscriptionHelper extends PureComponent<SubscriptionProps> {
   public readonly componentDidMount = () => {
     const updateQuery: UpdateQueryFn<RoomsData, {}, RoomUpdatesData> = (
       prev, { subscriptionData },
@@ -28,6 +28,7 @@ class SubscriptionHelper extends PureComponent<RoomListProps> {
       if (roomUpdates.mutation === 'CREATED') {
         rooms.push(roomUpdates.new);
       }
+      prev.rooms = rooms;
       return Object.assign<object, RoomsData, RoomsData>(
         {}, prev, { rooms },
       );

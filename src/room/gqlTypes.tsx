@@ -18,6 +18,18 @@ export interface RoomDetail extends Room {
   occupants: CurrentUser[];
 }
 
+export interface RoomMessages extends Room {
+  id: string;
+  name: string;
+  messages: RoomMessage[];
+}
+
+export interface RoomMessage {
+  id: string;
+  content: string;
+  sender?: User;
+}
+
 export const ROOM_QUERY = gql`
 query Room($roomId: ID!) {
   room(id: $roomId) {
@@ -35,6 +47,14 @@ query Room($roomId: ID!) {
 }
 `;
 
+export interface RoomVariables {
+  roomId: string;
+}
+
+export interface RoomData {
+  room: RoomDetail;
+}
+
 export const ROOMS_QUERY = gql`
 query Rooms {
   rooms {
@@ -44,16 +64,29 @@ query Rooms {
 }
 `;
 
-export interface RoomVariables {
-  roomId: string;
-}
-
-export interface RoomData {
-  room: RoomDetail;
-}
-
 export interface RoomsData {
   rooms: Room[];
+}
+
+export const ROOM_MESSAGES_QUERY = gql`
+query RoomMessages($roomId: ID!) {
+  room(id: $roomId) {
+    id
+    name
+    messages {
+      id
+      content
+      sender {
+        id
+        email
+      }
+    }
+  }
+}
+`;
+
+export interface RoomMessagesData {
+  room: RoomMessages;
 }
 
 export const ROOM_CREATE_MUTATION = gql`
@@ -65,12 +98,12 @@ mutation RoomCreate($name: String!) {
 }
 `;
 
-export interface RoomCreateData {
-  roomCreate: Room;
-}
-
 export interface RoomCreateVariables {
   name: string;
+}
+
+export interface RoomCreateData {
+  roomCreate: Room;
 }
 
 export const ROOM_UPDATES_SUBSCRIPTION = gql`
@@ -106,3 +139,39 @@ mutation RoomMessageCreate($roomId: ID! $content: String!) {
   }
 }
 `;
+
+export interface RoomMessageCreateVariables {
+  roomId: string;
+  content: string;
+}
+
+export interface RoomMessageCreateData {
+  roomMessageCreate: RoomMessage;
+}
+
+interface RoomMessageCreated {
+  mutation: 'CREATED';
+  new: RoomMessage;
+}
+
+export const ROOM_MESSAGE_UPDATES_SUBSCRIPTION = gql`
+subscription RoomMessageUpdates($roomId: ID!) {
+  roomMessageUpdatesOfRoom(id: $roomId) {
+    mutation
+    new {
+      id
+      content
+      sender {
+        id
+        email
+      }
+    }
+  }
+}
+`;
+
+export type RoomMessageUpdatesPayload = RoomMessageCreated;
+
+export interface RoomMessageUpdatesData {
+  roomMessageUpdatesOfRoom: RoomMessageUpdatesPayload;
+}

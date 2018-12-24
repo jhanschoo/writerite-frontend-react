@@ -8,11 +8,11 @@ import {
   DECK_UPDATES_SUBSCRIPTION, DECKS_QUERY, DecksData, DeckUpdatesData,
 } from './gqlTypes';
 
-interface DeckListProps {
+interface SubscriptionProps {
   subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
 }
 
-class SubscriptionHelper extends PureComponent<DeckListProps> {
+class SubscriptionHelper extends PureComponent<SubscriptionProps> {
   public readonly componentDidMount = () => {
     const updateQuery: UpdateQueryFn<DecksData, {}, DeckUpdatesData> = (
       prev, { subscriptionData },

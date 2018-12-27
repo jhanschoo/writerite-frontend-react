@@ -1,39 +1,28 @@
-import React, { Component, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 
-import { Query, QueryResult, OperationVariables } from 'react-apollo';
-import { SubscribeToMoreOptions } from 'apollo-client';
-import { UpdateQueryFn } from 'apollo-client/core/watchQueryOptions';
-
+import { Query, QueryResult, Mutation, MutationFn } from 'react-apollo';
 import {
-  DECK_UPDATES_SUBSCRIPTION, DECKS_QUERY, DecksData, DeckUpdatesData,
+  DECKS_QUERY, DECK_CREATE_MUTATION,
+  DecksData, DeckCreateData, DeckCreateVariables,
 } from './gqlTypes';
+import WrDeckListSubscriptionHelper from './WrDeckListSubscriptionHelper';
 
-interface SubscriptionProps {
-  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-}
+import { Segment, Container, Menu, Input, Icon } from 'semantic-ui-react';
 
-class SubscriptionHelper extends PureComponent<SubscriptionProps> {
-  public readonly componentDidMount = () => {
-    const updateQuery: UpdateQueryFn<DecksData, {}, DeckUpdatesData> = (
-      prev, { subscriptionData },
-    ) => {
-      const decks = prev.decks.slice();
-      const { deckUpdates } = subscriptionData.data;
-      if (deckUpdates.mutation === 'CREATED') {
-        decks.push(deckUpdates.new);
-      }
-      return Object.assign<object, DecksData, DecksData>(
-        {}, prev, { decks },
-      );
-    };
-    this.props.subscribeToMore({
-      document: DECK_UPDATES_SUBSCRIPTION,
-      updateQuery,
-    });
-  }
+import WrNavbar from '../WrNavbar';
 
-  public readonly render = () => null;
-}
+const createDeckButton = (
+  mutate: MutationFn<DeckCreateData, DeckCreateVariables>,
+) => {
+  const handleNewDeck = () => mutate({
+    variables: { name: 'deck1' },
+  });
+  return (
+    <Menu.Item onClick={handleNewDeck}>
+      <Icon name="plus" /> New Deck
+    </Menu.Item>
+  );
+};
 
 const renderListWithSubscription = ({
   subscribeToMore, loading, error, data,
@@ -49,19 +38,41 @@ const renderListWithSubscription = ({
   ));
   return (
     <>
-      <SubscriptionHelper subscribeToMore={subscribeToMore} />
+      <WrDeckListSubscriptionHelper subscribeToMore={subscribeToMore} />
       {list}
     </>
   );
 };
 
-// tslint:disable-next-line: max-classes-per-file
-class WrDeckList extends Component {
+class WrDeckList extends PureComponent {
   public readonly render = () => {
     return (
-      <Query query={DECKS_QUERY}>
-        {renderListWithSubscription}
-      </Query>
+      <div>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <WrNavbar dashboardPage="Deck">
+              <Mutation mutation={DECK_CREATE_MUTATION}>
+                {createDeckButton}
+              </Mutation>
+              <Menu.Item>
+                <Input
+                  transparent={true}
+                  icon="search"
+                  iconPosition="left"
+                  placeholder="Search for a deck..."
+                />
+              </Menu.Item>
+            </WrNavbar>
+          </Container>
+        </Segment>
+        <Segment as="section" vertical={true} basic={true}>
+          <Container>
+            <Query query={DECKS_QUERY}>
+              {renderListWithSubscription}
+            </Query>
+          </Container>
+        </Segment>
+      </div>
     );
   }
 }

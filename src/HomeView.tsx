@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Container, Segment, Grid, Header } from 'semantic-ui-react';
 
 import WrNavbar from './WrNavbar';
 import WrSignin from './signin/WrSignin';
 
-class HomeView extends Component {
+class HomeView extends PureComponent {
   public readonly render = () => {
     return (
       <div>

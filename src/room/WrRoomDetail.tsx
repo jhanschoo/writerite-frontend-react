@@ -42,7 +42,7 @@ class WrRoomDetail extends PureComponent<Props> {
   }
 
   private renderRoom = ({
-    subscribeToMore, loading, error, data,
+    error, data,
   }: QueryResult<RoomData, RoomVariables>) => {
     const { name, occupants, owner } = (data && data.room) || {
       name: null,

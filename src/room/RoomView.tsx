@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Switch, Route, withRouter, RouteComponentProps } from 'react-router';
 import WrRoomList from './WrRoomList';
 import WrRoomDetail from './WrRoomDetail';
 
-class RoomView extends Component<RouteComponentProps> {
+class RoomView extends PureComponent<RouteComponentProps> {
   public readonly render = () => {
     const { match } = this.props;
     return (

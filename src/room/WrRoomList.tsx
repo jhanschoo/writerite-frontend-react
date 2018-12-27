@@ -1,46 +1,17 @@
-import React, { Component, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 
 import { Link } from 'react-router-dom';
 
 import { Query, QueryResult, Mutation, MutationFn } from 'react-apollo';
-import { SubscribeToMoreOptions } from 'apollo-client';
-import { UpdateQueryFn } from 'apollo-client/core/watchQueryOptions';
+import {
+  ROOMS_QUERY, ROOM_CREATE_MUTATION,
+ RoomsData, RoomCreateData, RoomCreateVariables,
+} from './gqlTypes';
+import WrRoomListSubscriptionHelper from './WrRoomListSubscriptionHelper';
 
 import { Card, Segment, Container, Menu, Input, Icon } from 'semantic-ui-react';
 
-import {
-  ROOMS_QUERY, ROOM_CREATE_MUTATION, ROOM_UPDATES_SUBSCRIPTION,
-  RoomsData, RoomUpdatesData, RoomCreateData, RoomCreateVariables,
-} from './gqlTypes';
 import WrNavbar from '../WrNavbar';
-
-interface SubscriptionProps {
-  subscribeToMore: (options: SubscribeToMoreOptions) => () => void;
-}
-
-class SubscriptionHelper extends PureComponent<SubscriptionProps> {
-  public readonly componentDidMount = () => {
-    const updateQuery: UpdateQueryFn<RoomsData, {}, RoomUpdatesData> = (
-      prev, { subscriptionData },
-    ) => {
-      const rooms = prev.rooms.slice();
-      const { roomUpdates } = subscriptionData.data;
-      if (roomUpdates.mutation === 'CREATED') {
-        rooms.push(roomUpdates.new);
-      }
-      prev.rooms = rooms;
-      return Object.assign<object, RoomsData, RoomsData>(
-        {}, prev, { rooms },
-      );
-    };
-    this.props.subscribeToMore({
-      document: ROOM_UPDATES_SUBSCRIPTION,
-      updateQuery,
-    });
-  }
-
-  public readonly render = () => null;
-}
 
 const renderListWithSubscription = ({
   subscribeToMore, loading, error, data,
@@ -62,7 +33,7 @@ const renderListWithSubscription = ({
   ));
   return (
     <>
-      <SubscriptionHelper subscribeToMore={subscribeToMore} />
+      <WrRoomListSubscriptionHelper subscribeToMore={subscribeToMore} />
       <Card.Group itemsPerRow={4}>
         {list}
       </Card.Group>
@@ -70,26 +41,20 @@ const renderListWithSubscription = ({
   );
 };
 
-const handleNewRoom = (
-  mutate: MutationFn<RoomCreateData, RoomCreateVariables>,
-) => () => {
-  mutate({
-    variables: { name: 'room1' },
-  });
-  return null;
-};
-
 const createRoomButton = (
   mutate: MutationFn<RoomCreateData, RoomCreateVariables>,
-) => (
-    <Menu.Item onClick={handleNewRoom(mutate)}>
+) => {
+  const handleNewRoom = () => mutate({
+    variables: { name: 'room1' },
+  });
+  return (
+    <Menu.Item onClick={handleNewRoom}>
       <Icon name="plus" /> New Room
     </Menu.Item>
   );
-
-// TODO: refactor search to use redux state
-// tslint:disable-next-line: max-classes-per-file
-class WrRoomList extends Component {
+};
+// TODO: implement and refactor search to use redux state
+class WrRoomList extends PureComponent {
   public readonly render = () => {
     return (
       <div>
@@ -104,7 +69,7 @@ class WrRoomList extends Component {
                   transparent={true}
                   icon="search"
                   iconPosition="left"
-                  placeholder="Search for a deck..."
+                  placeholder="Search for a room..."
                 />
               </Menu.Item>
             </WrNavbar>

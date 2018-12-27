@@ -1,19 +1,16 @@
-import React, { PureComponent } from 'react';
-
-import { SubscribeToMoreOptions } from 'apollo-client';
-
-import { Feed, Card, Placeholder } from 'semantic-ui-react';
+import React, { Component, createRef } from 'react';
 
 import { withRouter, RouteComponentProps } from 'react-router';
 
 import { Query, QueryResult } from 'react-apollo';
 import {
-  ROOM_MESSAGES_QUERY, ROOM_MESSAGE_UPDATES_SUBSCRIPTION,
-  RoomVariables, RoomMessage, RoomMessagesData, RoomMessageUpdatesData,
+  ROOM_MESSAGES_QUERY, RoomVariables, RoomMessagesData,
 } from './gqlTypes';
+import WrRoomFeedSubscriptionHelper from './WrRoomFeedSubscriptionHelper';
 
+import { Feed, Card, Placeholder, Ref, Button, Visibility, VisibilityEventData } from 'semantic-ui-react';
 import { emailToGravatarLink } from '../util';
-import { UpdateQueryFn } from 'apollo-client/core/watchQueryOptions';
+
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
@@ -24,12 +21,6 @@ type DispatchProps = object;
 type StateProps = object;
 
 type Props = StateProps & DispatchProps & OwnProps;
-
-interface SubscriptionProps {
-  subscribeToMore: (options: SubscribeToMoreOptions<
-    RoomMessagesData, { roomId: string }, RoomMessageUpdatesData
-  >) => () => void;
-}
 
 const formattedLoadingFeed = [
   (
@@ -45,68 +36,59 @@ const formattedLoadingFeed = [
     </Feed.Event>
   ), (
     <Feed.Event key="placeholder1">
-    <Feed.Content>
-      <Placeholder>
-        <Placeholder.Header image={true}>
-          <Placeholder.Line />
-          <Placeholder.Line />
-        </Placeholder.Header>
-      </Placeholder>
-    </Feed.Content>
+      <Feed.Content>
+        <Placeholder>
+          <Placeholder.Header image={true}>
+            <Placeholder.Line />
+            <Placeholder.Line />
+          </Placeholder.Header>
+        </Placeholder>
+      </Feed.Content>
     </Feed.Event>
   ),
 ];
 
-class SubscriptionHelper extends PureComponent<
-  SubscriptionProps & RoomDetailRouteProps
-> {
-  public readonly componentDidMount = () => {
-    const { match, subscribeToMore } = this.props;
-    const { roomId } = match.params;
-    const updateQuery: UpdateQueryFn<
-      RoomMessagesData, { roomId: string }, RoomMessageUpdatesData
-    > = (
-      prev, { subscriptionData },
-    ) => {
-      const messages = prev.room.messages.slice();
-      const { roomMessageUpdatesOfRoom } = subscriptionData.data;
-      if (roomMessageUpdatesOfRoom.mutation === 'CREATED') {
-        messages.push(roomMessageUpdatesOfRoom.new);
-      }
-      return Object.assign(
-        {}, prev, { room: Object.assign({}, prev.room, { messages }) },
-      );
-    };
+class WrRoomFeed extends Component<Props, { pinToBottom: boolean }> {
+  public state = {
+    pinToBottom: true,
+  };
 
-    subscribeToMore({
-      document: ROOM_MESSAGE_UPDATES_SUBSCRIPTION,
-      variables: { roomId },
-      updateQuery,
-    });
-  }
+  private feedRef = createRef<HTMLDivElement>();
 
-  public readonly render = () => null;
-}
-
-// tslint:disable-next-line: variable-name
-const WrappedSubscriptionHelper = withRouter(SubscriptionHelper);
-
-// tslint:disable-next-line: max-classes-per-file
-class WrRoomFeed extends PureComponent<Props> {
   public readonly render = () => {
-    const { match } = this.props;
-    const { roomId } = match.params;
-    const { renderFeed } = this;
+    const { roomId } = this.props.match.params;
+    const { renderFeed, scrollFeedToBottom } = this;
     return (
-      <Query query={ROOM_MESSAGES_QUERY} variables={{ roomId }}>
+      <Query
+        query={ROOM_MESSAGES_QUERY}
+        variables={{ roomId }}
+        onCompleted={scrollFeedToBottom}
+      >
         {renderFeed}
       </Query>
     );
   }
 
-  private renderFeed = ({
+  private readonly scrollFeedToBottom = () => {
+    if (!this.feedRef.current || !this.state.pinToBottom) {
+      return;
+    }
+    const list = this.feedRef.current;
+    list.scrollTop = list.scrollHeight - list.clientHeight;
+  }
+
+  private readonly setPinToBottom = () => {
+    return this.setState({ pinToBottom: true });
+  }
+
+  private readonly unsetPinToBottom = () => {
+    return this.setState({ pinToBottom: false });
+  }
+
+  private readonly renderFeed = ({
     subscribeToMore, loading, error, data,
   }: QueryResult<RoomMessagesData, RoomVariables>) => {
+    const { feedRef, setPinToBottom, unsetPinToBottom } = this;
     const formattedMessages = (loading || !data)
       ? formattedLoadingFeed
       : data.room.messages.map(({ id, content, sender }) => {
@@ -137,12 +119,20 @@ class WrRoomFeed extends PureComponent<Props> {
       });
     return (
       <>
-        <WrappedSubscriptionHelper subscribeToMore={subscribeToMore} />
-        <Card.Content className="room-content">
-          <Feed>
-            {formattedMessages}
-          </Feed>
-        </Card.Content>
+        <WrRoomFeedSubscriptionHelper subscribeToMore={subscribeToMore} />
+        <Ref innerRef={feedRef}>
+          <Card.Content className="room-content">
+            <Visibility
+              once={false}
+              onBottomVisible={setPinToBottom}
+              onBottomVisibleReverse={unsetPinToBottom}
+            >
+              <Feed>
+                  {formattedMessages}
+              </Feed>
+            </Visibility>
+          </Card.Content>
+        </Ref>
       </>
     );
   }

@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { RouteComponentProps, Redirect, Switch, Route } from 'react-router';
-import { connect } from 'react-redux';
 
+import { connect } from 'react-redux';
 import { WrState } from './store';
+import { CurrentUser } from './signin/actions';
 
 import DeckView from './deck/DeckView';
 import RoomView from './room/RoomView';
-import { CurrentUser } from './signin/actions';
 
 type OwnProps = RouteComponentProps;
 
@@ -18,7 +18,7 @@ interface StateProps {
 
 type Props = StateProps & DispatchProps & OwnProps;
 
-class DashboardView extends Component<Props> {
+class DashboardView extends PureComponent<Props> {
   public readonly render = () => {
     const { match } = this.props;
     return (

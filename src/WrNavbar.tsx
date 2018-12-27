@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Image } from 'semantic-ui-react';
@@ -39,7 +39,7 @@ const renderDashboardNav = (dashboardPage?: string) => {
   );
 };
 
-class WrNavbar extends Component<Props> {
+class WrNavbar extends PureComponent<Props> {
   public readonly render = () => {
     const { user, dashboardPage, children } = this.props;
     const { renderLogout } = this;

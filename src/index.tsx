@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import { Provider } from 'react-redux';
+import { store } from './store';
+
 import { BrowserRouter } from 'react-router-dom';
+
 import { ApolloProvider } from 'react-apollo';
+import { client } from './apolloClient';
 
 import 'semantic-ui-css/semantic.min.css';
+import './index.css';
 
-import { store } from './store';
-import { client } from './apolloClient';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

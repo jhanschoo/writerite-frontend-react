@@ -1,7 +1,8 @@
-import { OptionalSigninData, ActionTypes, SigninAction } from './actions';
+import { ActionTypes, SigninAction } from './actions';
+import { OptionalUserAndToken } from './types';
 
 export interface SigninState {
-  data: OptionalSigninData;
+  data: OptionalUserAndToken;
 }
 
 export const initialState: SigninState = {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Switch, Route, Redirect, withRouter, RouteComponentProps } from 'react-router';
-import { connect } from 'react-redux';
 
+import { connect } from 'react-redux';
 import { WrState } from './store';
-import { CurrentUser } from './signin/actions';
+import { CurrentUser } from './signin/types';
 
 import DashboardView from './DashboardView';
 import HomeView from './HomeView';

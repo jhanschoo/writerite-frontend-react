@@ -4,9 +4,8 @@ import { Link, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Image } from 'semantic-ui-react';
 
 import { WrState } from './store';
-import {
-  CurrentUser, createSignout, SigninAction,
-} from './signin/actions';
+import { createSignout, SigninAction } from './signin/actions';
+import { CurrentUser } from './signin/types';
 import { restartWsConnection } from './apolloClient';
 import { emailToGravatarLink } from './util';
 

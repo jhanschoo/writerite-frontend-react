@@ -47,6 +47,7 @@
     "@types/yup": "^0.26.3",
     "babel-plugin-transform-react-pug": "^6.0.1",
     "eslint-plugin-html": "^5.0.0",
+    "react-test-renderer": "^16.7.0",
     "tslint": "^5.11.0",
     "tslint-react": "^3.6.0",
     "typescript": "^3.2.2"
@@ -66,6 +67,8 @@
     "not op_mini all"
   ],
   "jest": {
-    "watchPathIgnorePatterns": ["<rootDir>/node_modules/**/*"]
+    "watchPathIgnorePatterns": [
+      "<rootDir>/node_modules/**/*"
+    ]
   }
 }

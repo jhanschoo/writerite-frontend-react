@@ -4,51 +4,50 @@ import { withRouter, RouteComponentProps } from 'react-router';
 
 import { Query, QueryResult } from 'react-apollo';
 import {
-  ROOM_MESSAGES_QUERY, RoomVariables, RoomMessagesData,
-} from './gqlTypes';
+  ROOM_MESSAGES_QUERY, RoomVariables, RoomMessagesData, RoomMessagesVariables,
+} from './gql';
 import WrRoomFeedSubscriptionHelper from './WrRoomFeedSubscriptionHelper';
 
-import { Feed, Card, Placeholder, Ref, Button, Visibility, VisibilityEventData } from 'semantic-ui-react';
-import { emailToGravatarLink } from '../util';
-
+import { Card, Comment, Placeholder, Ref, Visibility } from 'semantic-ui-react';
+import { emailToGravatarLink, printApolloError } from '../util';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
 type OwnProps = RoomDetailRouteProps;
 
-type DispatchProps = object;
+type Props = OwnProps;
 
-type StateProps = object;
-
-type Props = StateProps & DispatchProps & OwnProps;
+interface State {
+  pinToBottom: boolean;
+}
 
 const formattedLoadingFeed = [
   (
-    <Feed.Event key="placeholder0">
-      <Feed.Content>
+    <Comment key="room-feed-placeholder-0">
+      <Comment.Content>
         <Placeholder>
           <Placeholder.Header image={true}>
             <Placeholder.Line />
             <Placeholder.Line />
           </Placeholder.Header>
         </Placeholder>
-      </Feed.Content>
-    </Feed.Event>
+      </Comment.Content>
+    </Comment>
   ), (
-    <Feed.Event key="placeholder1">
-      <Feed.Content>
+    <Comment key="room-feed-placeholder-1">
+      <Comment.Content>
         <Placeholder>
           <Placeholder.Header image={true}>
             <Placeholder.Line />
             <Placeholder.Line />
           </Placeholder.Header>
         </Placeholder>
-      </Feed.Content>
-    </Feed.Event>
+      </Comment.Content>
+    </Comment>
   ),
 ];
 
-class WrRoomFeed extends Component<Props, { pinToBottom: boolean }> {
+class WrRoomFeed extends Component<Props, State> {
   public state = {
     pinToBottom: true,
   };
@@ -57,15 +56,20 @@ class WrRoomFeed extends Component<Props, { pinToBottom: boolean }> {
 
   public readonly render = () => {
     const { roomId } = this.props.match.params;
-    const { renderFeed, scrollFeedToBottom } = this;
+    const { feedRef, renderComments, scrollFeedToBottom } = this;
     return (
-      <Query
-        query={ROOM_MESSAGES_QUERY}
-        variables={{ roomId }}
-        onCompleted={scrollFeedToBottom}
-      >
-        {renderFeed}
-      </Query>
+      <Ref innerRef={feedRef}>
+        <Card.Content className="room-content">
+          <Query<RoomMessagesData, RoomMessagesVariables>
+            query={ROOM_MESSAGES_QUERY}
+            variables={{ roomId }}
+            onCompleted={scrollFeedToBottom}
+            onError={printApolloError}
+          >
+            {renderComments}
+          </Query>
+        </Card.Content>
+      </Ref>
     );
   }
 
@@ -85,54 +89,54 @@ class WrRoomFeed extends Component<Props, { pinToBottom: boolean }> {
     return this.setState({ pinToBottom: false });
   }
 
-  private readonly renderFeed = ({
+  private readonly renderComments = ({
     subscribeToMore, loading, error, data,
   }: QueryResult<RoomMessagesData, RoomVariables>) => {
-    const { feedRef, setPinToBottom, unsetPinToBottom } = this;
-    const formattedMessages = (loading || !data)
+    if (error) {
+      return null;
+    }
+    if (!loading && (!data || !data.room)) {
+      return null;
+    }
+    const { setPinToBottom, unsetPinToBottom } = this;
+    const formattedMessages = (loading || !data || !data.room)
       ? formattedLoadingFeed
       : data.room.messages.map(({ id, content, sender }) => {
-        const formattedLabel = sender && (
-          <Feed.Label>
-            <img
+        const formattedLabel = !sender
+          ? null
+          : (
+            <Comment.Avatar
               src={emailToGravatarLink(sender.email)}
               alt={`Gravatar of ${sender.email}`}
             />
-          </Feed.Label>
-        );
-        const formattedSender = sender && (
-          <Feed.Summary>
-            {sender.email}
-          </Feed.Summary>
-        );
+          );
+        const formattedSender = !sender
+          ? null
+          : (<Comment.Author>{sender.email}</Comment.Author>);
         return (
-          <Feed.Event key={id}>
+          <Comment key={id}>
             {formattedLabel}
-            <Feed.Content>
+            <Comment.Content>
               {formattedSender}
-              <Feed.Extra text={true}>
+              <Comment.Text>
                 {content}
-              </Feed.Extra>
-            </Feed.Content>
-          </Feed.Event>
+              </Comment.Text>
+            </Comment.Content>
+          </Comment>
         );
       });
     return (
       <>
         <WrRoomFeedSubscriptionHelper subscribeToMore={subscribeToMore} />
-        <Ref innerRef={feedRef}>
-          <Card.Content className="room-content">
-            <Visibility
-              once={false}
-              onBottomVisible={setPinToBottom}
-              onBottomVisibleReverse={unsetPinToBottom}
-            >
-              <Feed>
-                  {formattedMessages}
-              </Feed>
-            </Visibility>
-          </Card.Content>
-        </Ref>
+        <Visibility
+          once={false}
+          onBottomVisible={setPinToBottom}
+          onBottomVisibleReverse={unsetPinToBottom}
+        >
+          <Comment.Group>
+            {formattedMessages}
+          </Comment.Group>
+        </Visibility>
       </>
     );
   }

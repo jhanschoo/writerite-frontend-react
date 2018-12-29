@@ -1,24 +1,27 @@
 import React, { Component, SyntheticEvent } from 'react';
 
-import { Mutation, MutationFn, OperationVariables } from 'react-apollo';
-import gql from 'graphql-tag';
+import { OptionalUserAndToken } from './types';
+
+import { Mutation, MutationFn } from 'react-apollo';
+import { restartWsConnection } from '../apolloClient';
+import { SIGNIN, SigninVariables, SigninData } from './gql';
 
 import { connect } from 'react-redux';
+import { SigninAction, createSignin } from './actions';
+import { WrState } from '../store';
 
 import { withRouter, RouteComponentProps } from 'react-router';
 
 import {
-  Field, Formik, FormikProps, FormikErrors, FormikTouched,
+  Formik, FormikProps, FormikErrors, FormikTouched,
 } from 'formik';
 import * as yup from 'yup';
 
 import {
   Divider, Segment, Form, Input, Label, Container,
 } from 'semantic-ui-react';
+import { printApolloError } from '../util';
 
-import { restartWsConnection } from '../apolloClient';
-import { OptionalSigninData, SigninAction, createSignin } from './actions';
-import { WrState } from '../store';
 
 declare var gapiDeferred: Promise<any>;
 declare var grecaptchaDeferred: Promise<any>;
@@ -27,42 +30,18 @@ declare var FBDeferred: Promise<any>;
 type OwnProps = object;
 
 interface DispatchProps {
-  createSignin: (data: OptionalSigninData) => SigninAction;
+  createSignin: (data: OptionalUserAndToken) => SigninAction;
 }
 
 type StateProps = object;
 
 type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps;
 
-const SIGNIN = gql`
-mutation Signin(
-  $email: String!
-  $token: String!
-  $authorizer: String!
-  $identifier: String!
-  ) {
-  signin(
-    email: $email
-    token: $token
-    authorizer: $authorizer
-    identifier: $identifier
-    persist: false
-  ) {
-    user {
-      id
-      email
-      roles
-    }
-    token
-  }
-}
-`;
-
 const handleGoogleSignin = (
-  mutate: MutationFn<any, OperationVariables>,
-) => async (_event: SyntheticEvent, _data: {}): Promise<null> => {
+  mutate: MutationFn<SigninData, SigninVariables>,
+) => async (): Promise<void> => {
   const googleAuth = (await gapiDeferred).auth2.getAuthInstance();
-  googleAuth.signIn().then((googleUser: any) => {
+  return googleAuth.signIn().then((googleUser: any) => {
     mutate({
       variables: {
         email: googleUser.getBasicProfile().getEmail(),
@@ -72,13 +51,12 @@ const handleGoogleSignin = (
       },
     });
   });
-  return null;
 };
 
 const handleFacebookSignin = (
-  mutate: MutationFn<any, OperationVariables>,
-) => async (_event: SyntheticEvent, _data: {}): Promise<null> => {
-  (await FBDeferred).login(async (loginResponse: any) => {
+  mutate: MutationFn<SigninData, SigninVariables>,
+) => async (): Promise<void> => {
+  return (await FBDeferred).login(async (loginResponse: any) => {
     const { authResponse } = loginResponse;
     if (authResponse) {
       (await FBDeferred).api('/me', {
@@ -97,13 +75,12 @@ const handleFacebookSignin = (
   }, {
       scope: 'public_profile,email',
     });
-  return null;
 };
 
 const handleLocalSignin = (
-  mutate: MutationFn<any, OperationVariables>,
+  mutate: MutationFn<SigninData, SigninVariables>,
 ) => (values: FormValues) => {
-  mutate({
+  return mutate({
     variables: {
       email: values.email,
       token: values.recaptcha,
@@ -111,7 +88,6 @@ const handleLocalSignin = (
       identifier: values.password,
     },
   });
-  return null;
 };
 
 interface FormValues {
@@ -153,167 +129,165 @@ const formInitialValues: FormValues = {
 
 class WrSignin extends Component<Props> {
 
-  public state = {
+  public readonly state = {
     isSignin: formInitialValues.isSignin,
   };
 
-  public componentDidMount = () => {
+  public readonly componentDidMount = () => {
     this.renderReCaptcha();
   }
 
-  public render = () => {
+  public readonly render = () => {
     const { isSignin } = this.state;
     const { handleSigninSuccess, toggleSignin } = this;
-    const renderFormFragment = (
-      mutate: MutationFn<any, OperationVariables>,
-    ) => (props: FormikProps<FormValues>) => {
-      const {
-        handleSubmit,
-        handleChange,
-        handleBlur,
-        setFieldTouched,
-        setFieldValue,
-        values,
-        errors,
-        touched,
-      } = props;
-      this.recaptchaCallback = (gRecaptchaResponse: string) => {
-        setFieldTouched('recaptcha');
-        setFieldValue('recaptcha', gRecaptchaResponse || '');
-        return null;
-      };
-      const showError = (
-        key: keyof FormikErrors<FormValues> & keyof FormikTouched<FormValues>,
-      ) => !!(touched[key] && errors[key]);
-      const passwordShowError = () => {
-        return !!(touched.password && touched.confirmPassword && (
-          errors.password || errors.confirmPassword
-        ));
-      };
-      const maybeError = (
-        key: keyof FormikErrors<FormValues> & keyof FormikTouched<FormValues>,
-      ) => showError(key) && (
-        <Label basic={true} color="red" pointing={true}>
-          {errors[key]}
-        </Label>
-      );
-      const passwordMaybeError = () => passwordShowError() && (
-        <Label basic={true} color="red" pointing={true}>
-          {errors.password || errors.confirmPassword}
-        </Label>
-      );
-      return (
-        <Form onSubmit={handleSubmit}>
-          <Form.Button type="button" color="google plus" fluid={true} onClick={handleGoogleSignin(mutate)}>
-            Sign in with Google
-          </Form.Button>
-          <Form.Button type="button" color="facebook" fluid={true} onClick={handleFacebookSignin(mutate)}>
-            Sign in with Facebook
-          </Form.Button>
-          <Divider horizontal={true}>or</Divider>
-          <Form.Field error={showError('email')}>
-            <Input
-              onChange={handleChange}
-              onBlur={handleBlur}
-              type="email"
-              name="email"
-              placeholder="Email"
-              fluid={true}
-            />
-            {maybeError('email')}
-          </Form.Field>
-          <Form.Field error={passwordShowError()}>
-            <Input
-              onChange={handleChange}
-              onBlur={handleBlur}
-              type="password"
-              name="password"
-              placeholder="Password"
-              fluid={true}
-            />
-            {passwordMaybeError()}
-          </Form.Field>
-          <Form.Field
-            error={passwordShowError()}
-            style={isSignin ? null : { display: 'none' }}
-          >
-            <Input
-              onChange={handleChange}
-              onBlur={handleBlur}
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password (required for new users)"
-              fluid={true}
-            />
-          </Form.Field>
-          <Form.Field
-            error={showError('recaptcha')}
-            style={isSignin ? null : { display: 'none' }}
-          >
-            <Container text={true} textAlign="center" fluid={true}>
-              <div id="g-recaptcha" style={{ display: 'inline-block' }} />
-              {maybeError('recaptcha')}
-            </Container>
-          </Form.Field>
-          <Form.Button type="submit" fluid={true} primary={true}>
-            {isSignin ? 'Sign in with Password' : 'Login with Password'}
-          </Form.Button>
-          <div>
-            <p>
-              {isSignin ? 'Existing user? ' : 'New user? '}
-              <a href="#" onClick={toggleSignin(props)}>
-                {isSignin ? 'Login' : 'Sign in'}
-              </a>
-            </p>
-          </div>
-        </Form>
-      );
-    };
-    const signinChild = (
-      mutate: MutationFn<any, OperationVariables>,
+    const renderForm = (
+      mutate: MutationFn<SigninData, SigninVariables>,
     ) => {
+      const renderFields = (props: FormikProps<FormValues>) => {
+        const {
+          handleSubmit,
+          handleChange,
+          handleBlur,
+          setFieldTouched,
+          setFieldValue,
+          values,
+          errors,
+          touched,
+        } = props;
+        this.recaptchaCallback = (gRecaptchaResponse: string) => {
+          setFieldTouched('recaptcha');
+          setFieldValue('recaptcha', gRecaptchaResponse || '');
+          return null;
+        };
+        const showError = (
+          key: keyof FormikErrors<FormValues> & keyof FormikTouched<FormValues>,
+        ) => !!(touched[key] && errors[key]);
+        const passwordShowError = !!(
+          touched.password && touched.confirmPassword && (
+            errors.password || errors.confirmPassword
+          ));
+        const maybeError = (
+          key: keyof FormikErrors<FormValues> & keyof FormikTouched<FormValues>,
+        ) => showError(key) && (
+          <Label basic={true} color="red" pointing={true}>
+            {errors[key]}
+          </Label>
+        );
+        const formattedPasswordError = passwordShowError && (
+          <Label basic={true} color="red" pointing={true}>
+            {errors.password || errors.confirmPassword}
+          </Label>
+        );
+        return (
+          <Form onSubmit={handleSubmit}>
+            <Form.Button type="button" color="google plus" fluid={true} onClick={handleGoogleSignin(mutate)}>
+              Sign in with Google
+            </Form.Button>
+            <Form.Button type="button" color="facebook" fluid={true} onClick={handleFacebookSignin(mutate)}>
+              Sign in with Facebook
+            </Form.Button>
+            <Divider horizontal={true}>or</Divider>
+            <Form.Field error={showError('email')}>
+              <Input
+                onChange={handleChange}
+                onBlur={handleBlur}
+                type="email"
+                name="email"
+                placeholder="Email"
+                fluid={true}
+              />
+              {maybeError('email')}
+            </Form.Field>
+            <Form.Field error={passwordShowError}>
+              <Input
+                onChange={handleChange}
+                onBlur={handleBlur}
+                type="password"
+                name="password"
+                placeholder="Password"
+                fluid={true}
+              />
+              {formattedPasswordError}
+            </Form.Field>
+            <Form.Field
+              error={passwordShowError}
+              style={isSignin ? null : { display: 'none' }}
+            >
+              <Input
+                onChange={handleChange}
+                onBlur={handleBlur}
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password (required for new users)"
+                fluid={true}
+              />
+            </Form.Field>
+            <Form.Field
+              error={showError('recaptcha')}
+              style={isSignin ? null : { display: 'none' }}
+            >
+              <Container text={true} fluid={true}>
+                <div id="g-recaptcha" style={{ display: 'inline-block' }} />
+                {maybeError('recaptcha')}
+              </Container>
+            </Form.Field>
+            <Form.Button type="submit" fluid={true} primary={true}>
+              {isSignin ? 'Sign in with Password' : 'Login with Password'}
+            </Form.Button>
+            <div>
+              <p>
+                {isSignin ? 'Existing user? ' : 'New user? '}
+                <a href="#" onClick={toggleSignin(props)}>
+                  {isSignin ? 'Login' : 'Sign in'}
+                </a>
+              </p>
+            </div>
+          </Form>
+        );
+      };
       return (
         <Formik
           initialValues={formInitialValues}
           onSubmit={handleLocalSignin(mutate)}
           validationSchema={formSchema}
         >
-          {renderFormFragment(mutate)}
+          {renderFields}
         </Formik>
       );
     };
     return (
-      <Segment>
-        <Mutation
+      <Segment textAlign="center">
+        <Mutation<SigninData, SigninVariables>
           mutation={SIGNIN}
           onCompleted={handleSigninSuccess}
+          onError={printApolloError}
+          ignoreResults={true}
         >
-          {signinChild}
+          {renderForm}
         </Mutation>
-      </Segment>
+      </Segment >
     );
   }
 
-  private toggleSignin = (
+  private readonly toggleSignin = (
     { setFieldTouched, setFieldValue }: FormikProps<FormValues>,
   ) => {
     return (event: SyntheticEvent) => {
       const { isSignin } = this.state;
-      const { setState } = this;
       const newIsSignin = !isSignin;
       event.preventDefault();
       // note that setState is async
-      setState(Object.assign({}, this.state, {
-        isSignin: newIsSignin,
-      }));
+      this.setState({ isSignin: newIsSignin });
       setFieldTouched('isSignin');
       setFieldValue('isSignin', newIsSignin);
     };
   }
 
-  private recaptchaCallback = (gRecaptchaResponse: string): null => null;
+  private recaptchaCallback = (gRecaptchaResponse: string): void => {
+    return;
+  }
 
-  private renderReCaptcha = () => {
+  private readonly renderReCaptcha = () => {
     if (grecaptchaDeferred) {
       grecaptchaDeferred.then((grecaptcha) => {
         grecaptcha.render('g-recaptcha', {
@@ -324,7 +298,7 @@ class WrSignin extends Component<Props> {
     }
   }
 
-  private handleSigninSuccess = ({ signin }: { signin: any }) => {
+  private readonly handleSigninSuccess = ({ signin }: SigninData) => {
     // tslint:disable-next-line: no-shadowed-variable
     const { createSignin, history } = this.props;
     createSignin(signin);

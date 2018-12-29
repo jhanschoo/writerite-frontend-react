@@ -8,43 +8,39 @@ import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import {
   ROOM_MESSAGE_CREATE,
   RoomMessageCreateData, RoomMessageCreateVariables,
-} from './gqlTypes';
-import { connect } from 'react-redux';
-import { WrState } from '../store';
-import { CurrentUser } from '../signin/actions';
+} from './gql';
+import { printApolloError } from '../util';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
 type OwnProps = RoomDetailRouteProps;
 
-type DispatchProps = object;
-
-interface StateProps {
-  readonly user: CurrentUser | null;
-}
-
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = OwnProps;
 
 class WrRoomDetail extends Component<Props> {
-  public state = {
+  public readonly state = {
     inputValue: '',
   };
 
   public readonly render = () => {
     const { inputBox } = this;
     return (
-      <Mutation
+      <Card.Content>
+      <Mutation<RoomMessageCreateData, RoomMessageCreateVariables>
         mutation={ROOM_MESSAGE_CREATE}
         onCompleted={this.handleMessageSent}
+        onError={printApolloError}
+        ignoreResults={true}
       >
         {inputBox}
       </Mutation>
+      </Card.Content>
     );
   }
 
   private readonly inputBox = (
     mutate: MutationFn<RoomMessageCreateData, RoomMessageCreateVariables>,
-    { data, error, loading }: MutationResult<RoomMessageCreateData>,
+    { loading }: MutationResult<RoomMessageCreateData>,
   ) => {
     const { handleSendMessage, handleInputMessageChange } = this;
     const buttonProps = {
@@ -54,15 +50,13 @@ class WrRoomDetail extends Component<Props> {
       onClick: handleSendMessage(mutate),
     };
     return (
-      <Card.Content>
-        <Input
-          fluid={true}
-          placeholder="Write a message..."
-          value={this.state.inputValue}
-          onChange={handleInputMessageChange}
-          action={buttonProps}
-        />
-      </Card.Content>
+      <Input
+        fluid={true}
+        placeholder="Write a message..."
+        value={this.state.inputValue}
+        onChange={handleInputMessageChange}
+        action={buttonProps}
+      />
     );
   }
 
@@ -89,11 +83,4 @@ class WrRoomDetail extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: WrState): StateProps => {
-  const user = (state.signin && state.signin.data && state.signin.data.user) || null;
-  return { user };
-};
-
-export default withRouter<OwnProps>(
-  connect<StateProps, {}, OwnProps>(mapStateToProps)(WrRoomDetail),
-);
+export default withRouter<OwnProps>(WrRoomDetail);

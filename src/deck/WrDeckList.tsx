@@ -1,45 +1,57 @@
 import React, { PureComponent } from 'react';
 
-import { Query, QueryResult, Mutation, MutationFn } from 'react-apollo';
-import {
-  DECKS_QUERY, DECK_CREATE_MUTATION,
-  DecksData, DeckCreateData, DeckCreateVariables,
-} from './gqlTypes';
+import { Link } from 'react-router-dom';
+
+import { Query, QueryResult } from 'react-apollo';
+import { Deck } from './types';
+import { DECKS_QUERY, DecksData, DecksVariables } from './gql';
 import WrDeckListSubscriptionHelper from './WrDeckListSubscriptionHelper';
 
-import { Segment, Container, Menu, Input, Icon } from 'semantic-ui-react';
+import { Segment, Container, Card, Placeholder } from 'semantic-ui-react';
 
-import WrNavbar from '../WrNavbar';
+import WrDeckListNavbar from './WrDeckListNavbar';
+import { printApolloError } from '../util';
 
-const createDeckButton = (
-  mutate: MutationFn<DeckCreateData, DeckCreateVariables>,
-) => {
-  const handleNewDeck = () => mutate({
-    variables: { name: 'deck1' },
-  });
-  return (
-    <Menu.Item onClick={handleNewDeck}>
-      <Icon name="plus" /> New Deck
-    </Menu.Item>
-  );
-};
-
-const renderListWithSubscription = ({
+const renderList = ({
   subscribeToMore, loading, error, data,
-}: QueryResult<DecksData, {}>) => {
-  if (loading) {
-    return 'Loading...';
+}: QueryResult<DecksData, DecksVariables>) => {
+  if (error) {
+    return null;
   }
-  if (error || !data) {
-    return `Error! ${error && error.message}`;
+  if (!loading && (!data || !data.decks)) {
+    return null;
   }
-  const list = data.decks.map(({ id, name }: { id: string, name: string }) => (
-    <p key={id}>{name}</p>
-  ));
+  const list = (loading || !data || !data.decks)
+    ? (
+      <Card key="deck-list-placeholder-0">
+        <Card.Content>
+          <Card.Header>
+            <Placeholder><Placeholder.Line /></Placeholder>
+          </Card.Header>
+          <Card.Meta>
+            <Placeholder><Placeholder.Line /></Placeholder>
+          </Card.Meta>
+        </Card.Content>
+      </Card>
+    )
+    : data.decks.map(({ id, name, owner: { email } }: Deck) => (
+      <Card key={id} as={Link} from="/dashboard/deck" to={`/dashboard/deck/${id}`}>
+        <Card.Content>
+          <Card.Header>
+            {name}
+          </Card.Header>
+          <Card.Meta>
+            by {email}
+          </Card.Meta>
+        </Card.Content>
+      </Card>
+    ));
   return (
     <>
       <WrDeckListSubscriptionHelper subscribeToMore={subscribeToMore} />
-      {list}
+      <Card.Group itemsPerRow={4}>
+        {list}
+      </Card.Group>
     </>
   );
 };
@@ -48,27 +60,14 @@ class WrDeckList extends PureComponent {
   public readonly render = () => {
     return (
       <div>
+        <WrDeckListNavbar />
         <Segment as="section" vertical={true} basic={true}>
           <Container>
-            <WrNavbar dashboardPage="Deck">
-              <Mutation mutation={DECK_CREATE_MUTATION}>
-                {createDeckButton}
-              </Mutation>
-              <Menu.Item>
-                <Input
-                  transparent={true}
-                  icon="search"
-                  iconPosition="left"
-                  placeholder="Search for a deck..."
-                />
-              </Menu.Item>
-            </WrNavbar>
-          </Container>
-        </Segment>
-        <Segment as="section" vertical={true} basic={true}>
-          <Container>
-            <Query query={DECKS_QUERY}>
-              {renderListWithSubscription}
+            <Query<DecksData, DecksVariables>
+              query={DECKS_QUERY}
+              onError={printApolloError}
+            >
+              {renderList}
             </Query>
           </Container>
         </Segment>

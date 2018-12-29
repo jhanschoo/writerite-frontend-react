@@ -1,5 +1,8 @@
 import React, { PureComponent } from 'react';
-import { Switch, Route, withRouter, RouteComponentProps } from 'react-router';
+
+import {
+  Switch, Route, withRouter, RouteComponentProps,
+} from 'react-router';
 import WrRoomList from './WrRoomList';
 import WrRoomDetail from './WrRoomDetail';
 

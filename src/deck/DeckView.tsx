@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
-import WrDeckList from './WrDeckList';
 import { RouteComponentProps, Switch, Route, withRouter } from 'react-router';
+
+import WrDeckList from './WrDeckList';
+import WrDeckDetail from './WrDeckDetail';
 
 class DeckView extends PureComponent<RouteComponentProps> {
   public readonly render = () => {
@@ -8,6 +10,7 @@ class DeckView extends PureComponent<RouteComponentProps> {
     return (
       <Switch>
         <Route path={`${match.url}`} exact={true} component={WrDeckList} />
+        <Route path={`${match.url}/:deckId`} component={WrDeckDetail} />
       </Switch>
     );
   }

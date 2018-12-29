@@ -3,7 +3,7 @@ import { RouteComponentProps, Redirect, Switch, Route } from 'react-router';
 
 import { connect } from 'react-redux';
 import { WrState } from './store';
-import { CurrentUser } from './signin/actions';
+import { CurrentUser } from './signin/types';
 
 import DeckView from './deck/DeckView';
 import RoomView from './room/RoomView';

@@ -11,6 +11,7 @@ import { Segment, Container, Card, Placeholder } from 'semantic-ui-react';
 
 import WrDeckListNavbar from './WrDeckListNavbar';
 import { printApolloError } from '../util';
+import WrNewDeck from './WrNewDeck';
 
 const renderList = ({
   subscribeToMore, loading, error, data,
@@ -49,8 +50,9 @@ const renderList = ({
   return (
     <>
       <WrDeckListSubscriptionHelper subscribeToMore={subscribeToMore} />
-      <Card.Group itemsPerRow={4}>
+      <Card.Group itemsPerRow={2}>
         {list}
+        <WrNewDeck />
       </Card.Group>
     </>
   );
@@ -59,7 +61,7 @@ const renderList = ({
 class WrDeckList extends PureComponent {
   public readonly render = () => {
     return (
-      <div>
+      <>
         <WrDeckListNavbar />
         <Segment as="section" vertical={true} basic={true}>
           <Container>
@@ -71,7 +73,7 @@ class WrDeckList extends PureComponent {
             </Query>
           </Container>
         </Segment>
-      </div>
+      </>
     );
   }
 }

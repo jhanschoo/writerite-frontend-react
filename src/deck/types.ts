@@ -12,10 +12,4 @@ export interface DeckDetail extends Deck {
   owner: User;
 }
 
-export interface Card {
-  id: string;
-  front: string;
-  back: string;
-}
-
 export type DeckUpdatesPayload = Payload<Deck>;

@@ -7,7 +7,6 @@ import { WrState } from './store';
 import { createSignout, SigninAction } from './signin/actions';
 import { CurrentUser } from './signin/types';
 import { restartWsConnection } from './apolloClient';
-import { emailToGravatarLink } from './util';
 
 interface OwnProps {
   readonly dashboardPage?: string;

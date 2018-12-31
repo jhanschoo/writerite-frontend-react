@@ -52,7 +52,7 @@ class WrRoomFeed extends Component<Props, State> {
     pinToBottom: true,
   };
 
-  private feedRef = createRef<HTMLDivElement>();
+  private feedRef = createRef<Element>();
 
   public readonly render = () => {
     const { roomId } = this.props.match.params;

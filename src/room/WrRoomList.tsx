@@ -11,6 +11,7 @@ import { Card, Segment, Container, Placeholder } from 'semantic-ui-react';
 
 import WrRoomListNavbar from './WrRoomListNavbar';
 import { printApolloError } from '../util';
+import WrNewRoom from './WrNewRoom';
 
 const renderList = ({
   subscribeToMore, loading, error, data,
@@ -52,6 +53,7 @@ const renderList = ({
       <WrRoomListSubscriptionHelper subscribeToMore={subscribeToMore} />
       <Card.Group itemsPerRow={4}>
         {list}
+        <WrNewRoom />
       </Card.Group>
     </>
   );
@@ -60,7 +62,7 @@ const renderList = ({
 class WrRoomList extends PureComponent {
   public readonly render = () => {
     return (
-      <div>
+      <>
         <WrRoomListNavbar />
         <Segment as="section" vertical={true} basic={true}>
           <Container>
@@ -72,7 +74,7 @@ class WrRoomList extends PureComponent {
             </Query>
           </Container>
         </Segment>
-      </div>
+      </>
     );
   }
 }

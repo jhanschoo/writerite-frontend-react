@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Deck, Card, DeckUpdatesPayload } from './types';
+import { Deck, DeckUpdatesPayload } from './types';
 
 // Deck query
 
@@ -45,26 +45,6 @@ export interface DecksData {
   decks: Deck[] | null;
 }
 
-// Cards query
-
-export const CARDS_QUERY = gql`
-query Cards($deckId: ID!) {
-  cardsFromDeck(id: $deckId) {
-    id
-    front
-    back
-  }
-}
-`;
-
-export interface CardsVariables {
-  deckId: string;
-}
-
-export interface CardsData {
-  cardsFromDeck: Card[] | null;
-}
-
 // DeckCreate mutation
 
 export const DECK_CREATE_MUTATION = gql`
@@ -82,32 +62,6 @@ export interface DeckCreateVariables {
 
 export interface DeckCreateData {
   deckSave: Deck | null;
-}
-
-// NewCard mutation
-
-export const NEW_CARD_MUTATION = gql`
-mutation NewCard(
-  $front: String! $back: String! $deckId: ID!
-) {
-  cardSave(
-    front: $front back: $back deckId: $deckId
-  ) {
-    id
-    front
-    back
-  }
-}
-`;
-
-export interface NewCardVariables {
-  deckId: string;
-  front: string;
-  back: string;
-}
-
-export interface NewCardData {
-  cardSave: Card | null;
 }
 
 // DeckUpdates subscription

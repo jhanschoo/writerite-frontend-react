@@ -12,7 +12,7 @@ import { WrState } from '../store';
 import { CurrentUser } from '../signin/types';
 
 import WrNavbar from '../WrNavbar';
-import WrCardsList from './WrCardsList';
+import WrCardsList from '../card/WrCardsList';
 
 type DeckDetailRouteProps = RouteComponentProps<{ deckId: string }>;
 type OwnProps = DeckDetailRouteProps;
@@ -44,6 +44,7 @@ class WrRoomDetail extends PureComponent<Props> {
         email: null,
       },
     };
+    const { deckId } = this.props.match.params;
     const formattedDeckName = (loading) ? (
       <Card.Header>
         <Placeholder>
@@ -75,7 +76,7 @@ class WrRoomDetail extends PureComponent<Props> {
                 {formattedOwner}
               </Card.Content>
               {formattedError}
-              <WrCardsList />
+              <WrCardsList deckId={deckId} />
             </Card>
           </Container>
         </Segment>

@@ -28,20 +28,22 @@ class WrCardCreate extends Component<Props, State> {
 
   private readonly focusRef = createRef<Input>();
 
-  public readonly componentDidUpdate = () => {
+  public readonly componentDidUpdate = (_prevProps: Props, prevState: State) => {
+    const { showInput: prevShowInput } = prevState;
     const { showInput } = this.state;
     const { focusRef } = this;
-    if (showInput && focusRef.current) {
+    if (!prevShowInput && showInput && focusRef.current) {
       focusRef.current.focus();
     }
   }
 
   public readonly render = () => {
-    const { renderCardCreate } = this;
+    const { handleResetState, renderCardCreate } = this;
     return (
       <Mutation<CardCreateData, CardCreateVariables>
         mutation={CARD_CREATE_MUTATION}
         onError={printApolloError}
+        onCompleted={handleResetState}
       >
         {renderCardCreate}
       </Mutation>

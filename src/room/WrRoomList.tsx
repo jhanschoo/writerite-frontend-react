@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Query, QueryResult } from 'react-apollo';
-import { Room } from './types';
+import { WrRoom } from './types';
 import { ROOMS_QUERY, RoomsData, RoomsVariables } from './gql';
 import WrRoomListSubscriptionHelper from './WrRoomListSubscriptionHelper';
 
@@ -11,7 +11,7 @@ import { Card, Segment, Container, Placeholder } from 'semantic-ui-react';
 
 import WrRoomListNavbar from './WrRoomListNavbar';
 import { printApolloError } from '../util';
-import WrNewRoom from './WrNewRoom';
+import WrNewRoom from './NewWrRoom';
 
 const renderList = ({
   subscribeToMore, loading, error, data,
@@ -19,11 +19,11 @@ const renderList = ({
   if (error) {
     return null;
   }
-  if (!loading && (!data || !data.rooms)) {
+  if (!loading && (!data || !data.rwRooms)) {
     return null;
   }
   // additional ||'s are needed due to tsc's poor case analysis
-  const list = (loading || !data || !data.rooms)
+  const list = (loading || !data || !data.rwRooms)
     ? (
       <Card key="room-list-placeholder-0">
         <Card.Content>
@@ -36,7 +36,7 @@ const renderList = ({
         </Card.Content>
       </Card>
     )
-    : data.rooms.map(({ id, name, owner: { email } }: Room) => (
+    : data.rwRooms.map(({ id, name, owner: { email } }: WrRoom) => (
       <Card key={id} as={Link} from="/dashboard/room" to={`/dashboard/room/${id}`}>
         <Card.Content>
           <Card.Header>

@@ -1,14 +1,13 @@
 import gql from 'graphql-tag';
 import {
-  RoomDetail, Room, RoomMessages, RoomUpdatesPayload, RoomMessage,
-  RoomMessageUpdatesPayload,
+  WrRoomDetail, WrRoom, WrRoomUpdatesPayload,
 } from './types';
 
 // Room query
 
 export const ROOM_QUERY = gql`
 query Room($roomId: ID!) {
-  room(id: $roomId) {
+  rwRoom(id: $roomId) {
     id
     name
     owner {
@@ -28,14 +27,14 @@ export interface RoomVariables {
 }
 
 export interface RoomData {
-  room: RoomDetail | null;
+  rwRoom: WrRoomDetail | null;
 }
 
 // Rooms query
 
 export const ROOMS_QUERY = gql`
 query Rooms {
-  rooms {
+  rwRooms {
     id
     name
     owner {
@@ -49,41 +48,14 @@ query Rooms {
 export type RoomsVariables = object;
 
 export interface RoomsData {
-  rooms: Room[] | null;
-}
-
-// RoomMessages query
-
-export const ROOM_MESSAGES_QUERY = gql`
-query RoomMessages($roomId: ID!) {
-  room(id: $roomId) {
-    id
-    name
-    messages {
-      id
-      content
-      sender {
-        id
-        email
-      }
-    }
-  }
-}
-`;
-
-export interface RoomMessagesVariables {
-  roomId: string;
-}
-
-export interface RoomMessagesData {
-  room: RoomMessages | null;
+  rwRooms: WrRoom[] | null;
 }
 
 // RoomCreate mutation
 
 export const ROOM_CREATE_MUTATION = gql`
 mutation RoomCreate($name: String!) {
-  roomCreate(name: $name) {
+  rwRoomCreate(name: $name) {
     id
     name
   }
@@ -95,34 +67,14 @@ export interface RoomCreateVariables {
 }
 
 export interface RoomCreateData {
-  roomCreate: Room | null;
-}
-
-// RoomMessageCreate mutation
-
-export const ROOM_MESSAGE_CREATE = gql`
-mutation RoomMessageCreate($roomId: ID! $content: String!) {
-  roomMessageCreate(roomId: $roomId messageContent: $content) {
-    id
-    content
-  }
-}
-`;
-
-export interface RoomMessageCreateVariables {
-  roomId: string;
-  content: string;
-}
-
-export interface RoomMessageCreateData {
-  roomMessageCreate: RoomMessage | null;
+  rwRoomCreate: WrRoom | null;
 }
 
 // RoomUpdatesSubscription
 
 export const ROOM_UPDATES_SUBSCRIPTION = gql`
 subscription RoomUpdates {
-  roomUpdates {
+  rwRoomUpdates {
     mutation
     new {
       id
@@ -139,31 +91,5 @@ subscription RoomUpdates {
 export type RoomUpdatesVariables = object;
 
 export interface RoomUpdatesData {
-  roomUpdates: RoomUpdatesPayload;
-}
-
-// RoomMessageUpdates subscription
-
-export const ROOM_MESSAGE_UPDATES_SUBSCRIPTION = gql`
-subscription RoomMessageUpdates($roomId: ID!) {
-  roomMessageUpdatesOfRoom(id: $roomId) {
-    mutation
-    new {
-      id
-      content
-      sender {
-        id
-        email
-      }
-    }
-  }
-}
-`;
-
-export interface RoomMessageUpdatesVariables {
-  roomId: string;
-}
-
-export interface RoomMessageUpdatesData {
-  roomMessageUpdatesOfRoom: RoomMessageUpdatesPayload;
+  rwRoomUpdates: WrRoomUpdatesPayload;
 }

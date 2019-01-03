@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { Deck, DeckUpdatesPayload } from './types';
+import { WrDeck, WrDeckUpdatesPayload } from './types';
 
 // Deck query
 
 export const DECK_QUERY = gql`
 query Deck($deckId: ID!) {
-  deck(id: $deckId) {
+  rwDeck(id: $deckId) {
     id
     name
     owner {
@@ -21,14 +21,14 @@ export interface DeckVariables {
 }
 
 export interface DeckData {
-  deck: Deck | null;
+  rwDeck: WrDeck | null;
 }
 
 // Decks query
 
 export const DECKS_QUERY = gql`
 query Decks {
-  decks {
+  rwDecks {
     id
     name
     owner {
@@ -42,14 +42,14 @@ query Decks {
 export type DecksVariables = object;
 
 export interface DecksData {
-  decks: Deck[] | null;
+  rwDecks: WrDeck[] | null;
 }
 
 // DeckCreate mutation
 
 export const DECK_CREATE_MUTATION = gql`
 mutation DeckCreate($name: String!) {
-  deckSave(name: $name) {
+  rwDeckSave(name: $name) {
     id
     name
   }
@@ -61,14 +61,14 @@ export interface DeckCreateVariables {
 }
 
 export interface DeckCreateData {
-  deckSave: Deck | null;
+  rwDeckSave: WrDeck | null;
 }
 
 // DeckUpdates subscription
 
 export const DECK_UPDATES_SUBSCRIPTION = gql`
 subscription DeckUpdates {
-  deckUpdates {
+  rwDeckUpdates {
     mutation
     new {
       id
@@ -85,5 +85,5 @@ subscription DeckUpdates {
 export type DeckUpdatesVariables = object;
 
 export interface DeckUpdatesData {
-  deckUpdates: DeckUpdatesPayload;
+  rwDeckUpdates: WrDeckUpdatesPayload;
 }

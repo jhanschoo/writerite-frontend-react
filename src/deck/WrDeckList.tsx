@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Query, QueryResult } from 'react-apollo';
-import { Deck } from './types';
+import { WrDeck } from './types';
 import { DECKS_QUERY, DecksData, DecksVariables } from './gql';
 import WrDeckListSubscriptionHelper from './WrDeckListSubscriptionHelper';
 
@@ -19,10 +19,10 @@ const renderList = ({
   if (error) {
     return null;
   }
-  if (!loading && (!data || !data.decks)) {
+  if (!loading && (!data || !data.rwDecks)) {
     return null;
   }
-  const list = (loading || !data || !data.decks)
+  const list = (loading || !data || !data.rwDecks)
     ? (
       <Card key="deck-list-placeholder-0">
         <Card.Content>
@@ -35,7 +35,7 @@ const renderList = ({
         </Card.Content>
       </Card>
     )
-    : data.decks.map(({ id, name, owner: { email } }: Deck) => (
+    : data.rwDecks.map(({ id, name, owner: { email } }: WrDeck) => (
       <Card key={id} as={Link} from="/dashboard/deck" to={`/dashboard/deck/${id}`}>
         <Card.Content>
           <Card.Header>

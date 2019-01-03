@@ -38,7 +38,7 @@ class WrRoomDetail extends PureComponent<Props> {
   private renderRoom = ({
     loading, error, data,
   }: QueryResult<DeckData, DeckVariables>) => {
-    const { name, owner: { email } } = (data && data.deck) || {
+    const { name, owner: { email } } = (data && data.rwDeck) || {
       name: null,
       owner: {
         email: null,

@@ -27,20 +27,22 @@ class WrCardItem extends Component<Props, State> {
 
   private readonly focusRef = createRef<Input>();
 
-  public readonly componentDidUpdate = () => {
+  public readonly componentDidUpdate = (_prevProps: Props, prevState: State) => {
+    const { showInput: prevShowInput } = prevState;
     const { showInput } = this.state;
     const { focusRef } = this;
-    if (showInput && focusRef.current) {
+    if (!prevShowInput && showInput && focusRef.current) {
       focusRef.current.focus();
     }
   }
 
   public readonly render = () => {
-    const { renderCardItem } = this;
+    const { renderCardItem, handleResetState } = this;
     return (
       <Mutation<CardEditData, CardEditVariables>
         mutation={CARD_EDIT_MUTATION}
         onError={printApolloError}
+        onCompleted={handleResetState}
       >
         {renderCardItem}
       </Mutation>
@@ -96,7 +98,6 @@ class WrCardItem extends Component<Props, State> {
           fluid={true}
           value={backInput}
           placeholder="Back..."
-          ref={focusRef}
           onChange={handleBackInputChange}
         />
       )

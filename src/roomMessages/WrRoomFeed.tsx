@@ -1,21 +1,17 @@
 import React, { Component, createRef } from 'react';
 
-import { withRouter, RouteComponentProps } from 'react-router';
-
 import { Query, QueryResult } from 'react-apollo';
 import {
-  ROOM_MESSAGES_QUERY, RoomVariables, RoomMessagesData, RoomMessagesVariables,
+  ROOM_MESSAGES_QUERY, RoomMessagesData, RoomMessagesVariables,
 } from './gql';
 import WrRoomFeedSubscriptionHelper from './WrRoomFeedSubscriptionHelper';
 
 import { Card, Comment, Placeholder, Ref, Visibility } from 'semantic-ui-react';
 import { emailToGravatarLink, printApolloError } from '../util';
 
-type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
-
-type OwnProps = RoomDetailRouteProps;
-
-type Props = OwnProps;
+interface Props {
+  roomId: string;
+}
 
 interface State {
   pinToBottom: boolean;
@@ -55,7 +51,7 @@ class WrRoomFeed extends Component<Props, State> {
   private feedRef = createRef<Element>();
 
   public readonly render = () => {
-    const { roomId } = this.props.match.params;
+    const { roomId } = this.props;
     const { feedRef, renderComments, scrollFeedToBottom } = this;
     return (
       <Ref innerRef={feedRef}>
@@ -91,17 +87,18 @@ class WrRoomFeed extends Component<Props, State> {
 
   private readonly renderComments = ({
     subscribeToMore, loading, error, data,
-  }: QueryResult<RoomMessagesData, RoomVariables>) => {
+  }: QueryResult<RoomMessagesData, RoomMessagesVariables>) => {
     if (error) {
       return null;
     }
-    if (!loading && (!data || !data.room)) {
+    if (!loading && (!data || !data.rwRoomMessagesOfRoom)) {
       return null;
     }
+    const { roomId } = this.props;
     const { setPinToBottom, unsetPinToBottom } = this;
-    const formattedMessages = (loading || !data || !data.room)
+    const formattedMessages = (loading || !data || !data.rwRoomMessagesOfRoom)
       ? formattedLoadingFeed
-      : data.room.messages.map(({ id, content, sender }) => {
+      : data.rwRoomMessagesOfRoom.map(({ id, content, sender }) => {
         const formattedLabel = !sender
           ? null
           : (
@@ -127,7 +124,7 @@ class WrRoomFeed extends Component<Props, State> {
       });
     return (
       <>
-        <WrRoomFeedSubscriptionHelper subscribeToMore={subscribeToMore} />
+        <WrRoomFeedSubscriptionHelper subscribeToMore={subscribeToMore} roomId={roomId} />
         <Visibility
           once={false}
           onBottomVisible={setPinToBottom}
@@ -142,4 +139,4 @@ class WrRoomFeed extends Component<Props, State> {
   }
 }
 
-export default withRouter<OwnProps>(WrRoomFeed);
+export default WrRoomFeed;

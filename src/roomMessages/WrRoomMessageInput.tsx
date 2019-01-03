@@ -26,14 +26,14 @@ class WrRoomDetail extends Component<Props> {
     const { inputBox } = this;
     return (
       <Card.Content>
-      <Mutation<RoomMessageCreateData, RoomMessageCreateVariables>
-        mutation={ROOM_MESSAGE_CREATE}
-        onCompleted={this.handleMessageSent}
-        onError={printApolloError}
-        ignoreResults={true}
-      >
-        {inputBox}
-      </Mutation>
+        <Mutation<RoomMessageCreateData, RoomMessageCreateVariables>
+          mutation={ROOM_MESSAGE_CREATE}
+          onCompleted={this.handleMessageSent}
+          onError={printApolloError}
+          ignoreResults={true}
+        >
+          {inputBox}
+        </Mutation>
       </Card.Content>
     );
   }

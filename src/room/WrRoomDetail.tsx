@@ -10,14 +10,12 @@ import { ROOM_QUERY, RoomData, RoomVariables } from './gql';
 import { printApolloError } from '../util';
 
 import WrNavbar from '../WrNavbar';
-import WrRoomMessageInput from './WrRoomMessageInput';
-import WrRoomFeed from './WrRoomFeed';
+import WrRoomMessageInput from '../roomMessages/WrRoomMessageInput';
+import WrRoomFeed from '../roomMessages/WrRoomFeed';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
-type OwnProps = RoomDetailRouteProps;
-
-type Props = OwnProps;
+type Props = RoomDetailRouteProps;
 
 class WrRoomDetail extends PureComponent<Props> {
 
@@ -50,13 +48,14 @@ class WrRoomDetail extends PureComponent<Props> {
   private renderRoom = ({
     loading, error, data,
   }: QueryResult<RoomData, RoomVariables>) => {
+    const { roomId } = this.props.match.params;
     if (error) {
       return null;
     }
-    if (!loading && (!data || !data.room)) {
+    if (!loading && (!data || !data.rwRoom)) {
       return null;
     }
-    const { name, occupants, owner } = (data && data.room) || {
+    const { name, occupants, owner } = (data && data.rwRoom) || {
       name: null,
       occupants: null,
       owner: null,
@@ -86,11 +85,11 @@ class WrRoomDetail extends PureComponent<Props> {
           <Card.Meta>{formattedOwnerInfo}</Card.Meta>
           {formattedOccupantEmails}
         </Card.Content>
-        <WrRoomFeed />
+        <WrRoomFeed roomId={roomId} />
         <WrRoomMessageInput />
       </Card>
     );
   }
 }
 
-export default withRouter<OwnProps>(WrRoomDetail);
+export default WrRoomDetail;

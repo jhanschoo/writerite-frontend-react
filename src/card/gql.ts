@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { Card, CardUpdatesPayload } from './types';
+import { WrCard, CardUpdatesPayload } from './types';
 
 // Cards query
 
 export const CARDS_QUERY = gql`
 query Cards($deckId: ID!) {
-  cardsFromDeck(id: $deckId) {
+  rwCardsOfDeck(deckId: $deckId) {
     id
     front
     back
@@ -18,7 +18,7 @@ export interface CardsVariables {
 }
 
 export interface CardsData {
-  cardsFromDeck: Card[] | null;
+  rwCardsOfDeck: WrCard[] | null;
 }
 
 // CardCreate mutation
@@ -27,7 +27,7 @@ export const CARD_CREATE_MUTATION = gql`
 mutation CardCreate(
   $front: String! $back: String! $deckId: ID!
 ) {
-  cardSave(
+  rwCardSave(
     front: $front back: $back deckId: $deckId
   ) {
     id
@@ -44,7 +44,7 @@ export interface CardCreateVariables {
 }
 
 export interface CardCreateData {
-  cardSave: Card | null;
+  rwCardSave: WrCard | null;
 }
 
 // CardEdit mutation
@@ -53,7 +53,7 @@ export const CARD_EDIT_MUTATION = gql`
 mutation CardEdit(
   $id: ID! $front: String! $back: String! $deckId: ID!
 ) {
-  cardSave(
+  rwCardSave(
     id: $id front: $front back: $back deckId: $deckId
   ) {
     id
@@ -71,14 +71,14 @@ export interface CardEditVariables {
 }
 
 export interface CardEditData {
-  cardSave: Card | null;
+  rwCardSave: WrCard | null;
 }
 
 // CardUpdates subscription
 
 export const CARD_UPDATES_SUBSCRIPTION = gql`
 subscription CardUpdates($deckId: ID!) {
-  cardUpdatesOfDeck(deckId: $deckId) {
+  rwCardUpdatesOfDeck(deckId: $deckId) {
     mutation
     new {
       id
@@ -94,5 +94,5 @@ export interface CardUpdatesVariables {
 }
 
 export interface CardUpdatesData {
-  cardUpdates: CardUpdatesPayload;
+  rwCardUpdatesOfDeck: CardUpdatesPayload;
 }

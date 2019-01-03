@@ -10,27 +10,28 @@ import { MutationType } from '../types';
 import { printApolloError } from '../util';
 
 
-interface SubscriptionProps {
+interface Props {
   subscribeToMore: (options: SubscribeToMoreOptions<RoomsData, RoomUpdatesVariables, RoomUpdatesData>) => () => void;
 }
 
-class WrRoomListSubscriptionHelper extends PureComponent<SubscriptionProps> {
+class WrRoomListSubscriptionHelper extends PureComponent<Props> {
   public readonly componentDidMount = () => {
+    const { subscribeToMore } = this.props;
     const updateQuery: UpdateQueryFn<
       RoomsData, RoomUpdatesVariables, RoomUpdatesData
     > = (prev, { subscriptionData }) => {
-      const rooms = (prev && prev.rooms && prev.rooms.slice()) || [];
-      const { roomUpdates } = subscriptionData.data;
-      if (roomUpdates.mutation === MutationType.CREATED) {
-        rooms.push(roomUpdates.new);
+      const rwRooms = (prev && prev.rwRooms && prev.rwRooms.slice()) || [];
+      const { rwRoomUpdates } = subscriptionData.data;
+      if (rwRoomUpdates.mutation === MutationType.CREATED) {
+        rwRooms.push(rwRoomUpdates.new);
       }
       // TODO: Handle other mutation types
-      prev.rooms = rooms;
+      prev.rwRooms = rwRooms;
       return Object.assign<object, RoomsData, RoomsData>(
-        {}, prev, { rooms },
+        {}, prev, { rwRooms },
       );
     };
-    this.props.subscribeToMore({
+    subscribeToMore({
       document: ROOM_UPDATES_SUBSCRIPTION,
       updateQuery,
       onError: printApolloError,

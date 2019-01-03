@@ -11,31 +11,29 @@ import {
 import { printApolloError } from '../util';
 import { MutationType } from '../types';
 
-type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
-
 interface SubscriptionProps {
   subscribeToMore: (options: SubscribeToMoreOptions<
     RoomMessagesData, RoomMessageUpdatesVariables, RoomMessageUpdatesData
   >) => () => void;
+  roomId: string;
 }
 
-type Props = SubscriptionProps & RoomDetailRouteProps;
+type Props = SubscriptionProps;
 
 class WrRoomFeedSubscriptionHelper extends PureComponent<Props> {
   public readonly componentDidMount = () => {
-    const { match, subscribeToMore } = this.props;
-    const { roomId } = match.params;
+    const { roomId, subscribeToMore } = this.props;
     const updateQuery: UpdateQueryFn<
       RoomMessagesData, RoomMessageUpdatesVariables, RoomMessageUpdatesData
     > = (prev, { subscriptionData }) => {
-      const messages = (prev && prev.room && prev.room.messages.slice()) || [];
-      const { roomMessageUpdatesOfRoom } = subscriptionData.data;
-      if (roomMessageUpdatesOfRoom.mutation === MutationType.CREATED) {
-        messages.push(roomMessageUpdatesOfRoom.new);
-      }
+      const rwRoomMessagesOfRoom = (prev && prev.rwRoomMessagesOfRoom && prev.rwRoomMessagesOfRoom.slice()) || [];
+      const { rwRoomMessageUpdatesOfRoom } = subscriptionData.data;
       // TODO: handle other types of updates
+      if (rwRoomMessageUpdatesOfRoom.mutation === MutationType.CREATED) {
+        rwRoomMessagesOfRoom.push(rwRoomMessageUpdatesOfRoom.new);
+      }
       return Object.assign(
-        {}, prev, { room: Object.assign({}, prev.room, { messages }) },
+        {}, prev, { rwRoomMessagesOfRoom },
       );
     };
 
@@ -50,4 +48,4 @@ class WrRoomFeedSubscriptionHelper extends PureComponent<Props> {
   public readonly render = () => null;
 }
 
-export default withRouter(WrRoomFeedSubscriptionHelper);
+export default WrRoomFeedSubscriptionHelper;

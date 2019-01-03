@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 
-import { Segment, Container, Menu, Input, Icon } from 'semantic-ui-react';
+import { Segment, Container, Menu, Input } from 'semantic-ui-react';
 
 import WrNavbar from '../WrNavbar';
 

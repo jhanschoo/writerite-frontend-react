@@ -8,8 +8,10 @@ import { printApolloError } from '../util';
 
 import { Card, Placeholder, Grid, Button } from 'semantic-ui-react';
 import WrCardCreate from './WrCardCreate';
-import { Card as CardType } from './types';
+import { WrCard } from './types';
 import WrCardItem from './WrCardItem';
+
+import WrCardsListSubscriptionHelper from './WrCardsListSubscriptionHelper';
 
 interface OwnProps {
   deckId: string;
@@ -64,18 +66,18 @@ class WrCardsList extends Component<Props> {
     if (error) {
       return null;
     }
-    if (!loading && (!data || !data.cardsFromDeck)) {
+    if (!loading && (!data || !data.rwCardsOfDeck)) {
       return null;
     }
     const { deckId } = this.props;
-    const formattedMessages = (loading || !data || !data.cardsFromDeck)
+    const formattedMessages = (loading || !data || !data.rwCardsOfDeck)
       ? formattedLoadingCards
-      : data.cardsFromDeck.map(({ id, front, back }: CardType) => {
+      : data.rwCardsOfDeck.map(({ id, front, back }: WrCard) => {
         return <WrCardItem key={id} id={id} front={front} back={back} deckId={deckId} />;
       });
     return (
       <>
-        {/*<WrCardsListSubscriptionHelper subscribeToMore={subscribeToMore} />*/}
+        {<WrCardsListSubscriptionHelper subscribeToMore={subscribeToMore} deckId={deckId} />}
         <Card.Content>
           <Card.Group itemsPerRow={1}>
             {formattedMessages}

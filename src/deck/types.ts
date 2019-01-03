@@ -1,15 +1,15 @@
 import { User, Payload } from '../types';
 
-export interface Deck {
+export interface WrDeck {
   id: string;
   name: string;
   owner: User;
 }
 
-export interface DeckDetail extends Deck {
+export interface WrDeckDetail extends WrDeck {
   id: string;
   name: string;
   owner: User;
 }
 
-export type DeckUpdatesPayload = Payload<Deck>;
+export type WrDeckUpdatesPayload = Payload<WrDeck>;

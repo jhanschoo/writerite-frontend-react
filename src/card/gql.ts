@@ -74,6 +74,22 @@ export interface CardEditData {
   rwCardSave: WrCard | null;
 }
 
+// CardDelete mutation
+
+export const CARD_DELETE_MUTATION = gql`
+mutation CardDelete($id: ID!) {
+  rwCardDelete(id: $id)
+}
+`;
+
+export interface CardDeleteVariables {
+  id: string;
+}
+
+export interface CardDeleteData {
+  rwCardDelete: string | null;
+}
+
 // CardUpdates subscription
 
 export const CARD_UPDATES_SUBSCRIPTION = gql`
@@ -85,6 +101,7 @@ subscription CardUpdates($deckId: ID!) {
       front
       back
     }
+    oldId
   }
 }
 `;

@@ -1,6 +1,9 @@
 import React, { Component, createRef, ChangeEvent } from 'react';
 import { Card, Grid, Button, Input, Header } from 'semantic-ui-react';
-import { CardEditData, CardEditVariables, CARD_EDIT_MUTATION } from './gql';
+import {
+  CardEditData, CardEditVariables, CARD_EDIT_MUTATION,
+  CardDeleteVariables, CardDeleteData, CARD_DELETE_MUTATION,
+} from './gql';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { printApolloError } from '../util';
 import WrTooltip from '../WrTooltip';
@@ -47,10 +50,31 @@ class WrCardItem extends Component<Props, State> {
         {renderCardItem}
       </Mutation>
     );
-
   }
 
-  public readonly renderCardItem = (
+  private readonly renderCardDelete = (
+    mutate: MutationFn<CardDeleteData, CardDeleteVariables>,
+    { loading }: MutationResult<CardDeleteData>,
+  ) => {
+    const { id } = this.props;
+    const handleClick = () => {
+      mutate({
+        variables: { id },
+      });
+    };
+    return (
+      <WrTooltip content="Delete">
+        <Button
+          loading={loading}
+          icon="trash"
+          color="red"
+          onClick={handleClick}
+        />
+      </WrTooltip>
+    );
+  }
+
+  private readonly renderCardItem = (
     mutate: MutationFn<CardEditData, CardEditVariables>,
     { loading }: MutationResult<CardEditData>,
   ) => {
@@ -59,7 +83,7 @@ class WrCardItem extends Component<Props, State> {
     const {
       handleFrontInputChange, handleBackInputChange,
       handleShowInput, handleResetState, handleSwapSides,
-      focusRef,
+      focusRef, renderCardDelete,
     } = this;
     const handleCardCreate = () => {
       return mutate({
@@ -136,12 +160,12 @@ class WrCardItem extends Component<Props, State> {
               onClick={handleShowInput}
             />
           </WrTooltip>
-          <WrTooltip content="Delete">
-            <Button
-              icon="trash"
-              color="red"
-            />
-          </WrTooltip>
+          <Mutation<CardDeleteData, CardDeleteVariables>
+            mutation={CARD_DELETE_MUTATION}
+            onError={printApolloError}
+          >
+            {renderCardDelete}
+          </Mutation>
         </>
       );
     return (

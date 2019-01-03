@@ -36,7 +36,7 @@ class WrDeckListSubscriptionHelper extends PureComponent<Props> {
           break;
         case MutationType.DELETED:
           cards = cards.filter((card: WrCard) => {
-            return card.id === rwCardUpdatesOfDeck.oldId;
+            return card.id !== rwCardUpdatesOfDeck.oldId;
           });
           break;
       }

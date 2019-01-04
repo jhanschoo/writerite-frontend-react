@@ -54,8 +54,8 @@ export interface RoomsData {
 // RoomCreate mutation
 
 export const ROOM_CREATE_MUTATION = gql`
-mutation RoomCreate($name: String!) {
-  rwRoomCreate(name: $name) {
+mutation RoomCreate($name: String! $deckId: ID!) {
+  rwRoomCreate(name: $name deckId: $deckId) {
     id
     name
   }
@@ -64,6 +64,7 @@ mutation RoomCreate($name: String!) {
 
 export interface RoomCreateVariables {
   name: string;
+  deckId: string;
 }
 
 export interface RoomCreateData {

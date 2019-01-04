@@ -11,7 +11,7 @@ import { Segment, Container, Card, Placeholder } from 'semantic-ui-react';
 
 import WrDeckListNavbar from './WrDeckListNavbar';
 import { printApolloError } from '../util';
-import WrNewDeck from './WrNewDeck';
+import WrDeckCreate from './WrDeckCreate';
 
 const renderList = ({
   subscribeToMore, loading, error, data,
@@ -52,7 +52,7 @@ const renderList = ({
       <WrDeckListSubscriptionHelper subscribeToMore={subscribeToMore} />
       <Card.Group itemsPerRow={2}>
         {list}
-        <WrNewDeck />
+        <WrDeckCreate />
       </Card.Group>
     </>
   );

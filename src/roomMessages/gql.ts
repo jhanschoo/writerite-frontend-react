@@ -30,7 +30,7 @@ export interface RoomMessagesData {
 
 export const ROOM_MESSAGE_CREATE = gql`
 mutation RoomMessageCreate($roomId: ID! $content: String!) {
-  rwRoomMessageCreate(roomId: $roomId messageContent: $content) {
+  rwRoomMessageCreate(roomId: $roomId content: $content) {
     id
     content
   }

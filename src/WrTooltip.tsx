@@ -14,6 +14,7 @@ class WrTooltip extends PureComponent<Props> {
         trigger={children}
         inverted={true}
         content={content}
+        position="top center"
         size="tiny"
       />
     );

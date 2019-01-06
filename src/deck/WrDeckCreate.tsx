@@ -4,7 +4,7 @@ import { MutationFn, Mutation, MutationResult } from 'react-apollo';
 import { DeckCreateData, DeckCreateVariables, DECK_CREATE_MUTATION } from './gql';
 import { printApolloError } from '../util';
 
-import { Card, Input } from 'semantic-ui-react';
+import { Card, Input, Button, Icon } from 'semantic-ui-react';
 
 class WrNewDeck extends Component {
   public readonly state = {
@@ -55,26 +55,28 @@ class WrNewDeck extends Component {
           break;
       }
     };
-    const buttonProps = {
-      loading,
-      icon: (loading) ? undefined : 'play',
-      primary: true,
-      onClick: handleNewDeck,
-    };
     if (showInput) {
       return (
         <Card key="new-deck-0" onKeyDown={handleKeyPress}>
           <Card.Content>
-            <Card.Header>
-              <Input
-                fluid={true}
-                value={nameInput}
-                placeholder="Name..."
-                onChange={handleInputChange}
-                ref={focusRef}
-                action={buttonProps}
-              />
-            </Card.Header>
+            <Input
+              fluid={true}
+              value={nameInput}
+              placeholder="Name..."
+              disabled={loading}
+              onChange={handleInputChange}
+              ref={focusRef}
+            />
+          </Card.Content>
+          <Card.Content extra={true} textAlign="center">
+            <Button
+              content="Confirm"
+              icon="play"
+              labelPosition="right"
+              onClick={handleNewDeck}
+              loading={loading}
+              primary={true}
+            />
           </Card.Content>
         </Card>
       );

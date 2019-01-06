@@ -20,6 +20,7 @@ export const emailToGravatarLink = (email: string) => {
 export const printApolloError = (error: Error) => {
   // tslint:disable-next-line: no-console
   console.error(`Error communicating with server: ${error.message}`);
+  return client.resetStore();
 };
 
 // tslint:disable-next-line: variable-name

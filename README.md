@@ -25,3 +25,7 @@ WriteRite service.
 ## Setting up production
 
 The app is not yet production ready.
+
+## TODO
+
+* Handle unexpected `null` GQL responses as errors requiring a `resetCache`.

@@ -3,6 +3,8 @@ import { SubscribeToMoreOptions } from 'apollo-client';
 import { UpdateQueryFn } from 'apollo-client/core/watchQueryOptions';
 import { DECK_UPDATES_SUBSCRIPTION, DecksData, DeckUpdatesData, DeckUpdatesVariables } from './gql';
 import { printApolloError } from '../util';
+import { MutationType } from '../types';
+import { WrDeck } from './types';
 
 
 interface Props {
@@ -17,13 +19,28 @@ class WrDeckListSubscriptionHelper extends PureComponent<Props> {
     const updateQuery: UpdateQueryFn<DecksData, DeckUpdatesVariables, DeckUpdatesData> = (
       prev, { subscriptionData },
     ) => {
-      const rwDecks = prev.rwDecks ? prev.rwDecks.slice() : [];
+      let decks = prev.rwDecks || [];
       const { rwDeckUpdates } = subscriptionData.data;
-      if (rwDeckUpdates.mutation === 'CREATED') {
-        rwDecks.push(rwDeckUpdates.new);
+      switch (rwDeckUpdates.mutation) {
+        case MutationType.CREATED:
+          decks = decks.concat([rwDeckUpdates.new]);
+          break;
+        case MutationType.UPDATED:
+          decks = decks.map((deck: WrDeck) => {
+            if (deck.id !== rwDeckUpdates.new.id) {
+              return deck;
+            }
+            return rwDeckUpdates.new;
+          });
+          break;
+        case MutationType.DELETED:
+          decks = decks.filter((deck: WrDeck) => {
+            return deck.id !== rwDeckUpdates.oldId;
+          });
+          break;
       }
       return Object.assign<object, DecksData, DecksData>(
-        {}, prev, { rwDecks },
+        {}, prev, { rwDecks: decks },
       );
     };
     subscribeToMore({

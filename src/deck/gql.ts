@@ -64,6 +64,42 @@ export interface DeckCreateData {
   rwDeckSave: WrDeck | null;
 }
 
+// DeckUpdate mutation
+
+export const DECK_UPDATE_MUTATION = gql`
+mutation DeckUpdate($id: ID! $name: String!) {
+  rwDeckSave(id: $id name: $name) {
+    id
+    name
+  }
+}
+`;
+
+export interface DeckUpdateVariables {
+  id: string;
+  name: string;
+}
+
+export interface DeckUpdateData {
+  rwDeckSave: WrDeck | null;
+}
+
+// DeckDelete mutation
+
+export const DECK_DELETE_MUTATION = gql`
+mutation DeckDelete($id: ID!) {
+  rwDeckDelete(id: $id)
+}
+`;
+
+export interface DeckDeleteVariables {
+  id: string;
+}
+
+export interface DeckDeleteData {
+  rwDeckDelete: string | null;
+}
+
 // DeckUpdates subscription
 
 export const DECK_UPDATES_SUBSCRIPTION = gql`
@@ -78,6 +114,7 @@ subscription DeckUpdates {
         email
       }
     }
+    oldId
   }
 }
 `;

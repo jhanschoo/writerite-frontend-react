@@ -72,7 +72,7 @@ class WrDeckList extends PureComponent<StateProps> {
     return (
       <>
         <WrDeckListSubscriptionHelper subscribeToMore={subscribeToMore} />
-        <Card.Group itemsPerRow={1}>
+        <Card.Group itemsPerRow={3}>
           {list}
           <WrDeckCreate />
         </Card.Group>

@@ -1,6 +1,7 @@
 import { ApolloClient } from 'apollo-client';
 import { createUploadLink } from 'apollo-upload-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
+import { persistCache } from 'apollo-cache-persist';
 import { setContext } from 'apollo-link-context';
 import { createPersistedQueryLink } from 'apollo-link-persisted-queries';
 import { WebSocketLink } from 'apollo-link-ws';
@@ -12,6 +13,7 @@ import { OperationDefinitionNode } from 'graphql';
 import { withClientState } from 'apollo-link-state';
 
 import { store } from './store';
+import { PersistentStorage, PersistedData } from 'apollo-cache-persist/types';
 
 // c.f. https://github.com/Akryum/vue-cli-plugin-apollo/blob/master/graphql-client/src/index.js
 
@@ -23,6 +25,13 @@ const getAuth = () => {
 };
 
 const cache = new InMemoryCache();
+
+persistCache({
+  cache,
+  // https://github.com/apollographql/apollo-cache-persist/issues/55
+  // remove coercion when https://github.com/apollographql/apollo-cache-persist/pull/58 is published
+  storage: window.localStorage as PersistentStorage<PersistedData<NormalizedCacheObject>>,
+});
 
 const httpLink = createUploadLink({
   uri: process.env.REACT_APP_GRAPHQL_HTTP,

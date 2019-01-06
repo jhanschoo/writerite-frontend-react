@@ -82,8 +82,8 @@ class WrCardsList extends Component<Props> {
       ? formattedLoadingCards
       : data.rwCardsOfDeck.filter((room) => {
         return filter === '' || room.front.includes(filter) || room.back.includes(filter);
-      }).map(({ id, front, back }: WrCard) => {
-        return <WrCardItem key={id} id={id} front={front} back={back} deckId={deckId} />;
+      }).map((card: WrCard) => {
+        return <WrCardItem key={card.id} card={card} deckId={deckId} />;
       });
     return (
       <>

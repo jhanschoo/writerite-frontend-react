@@ -15,6 +15,7 @@ import WrDeckCreate from './WrDeckCreate';
 import { connect } from 'react-redux';
 import { WrState } from '../store';
 import { initialState } from './reducers';
+import WrDeckItem from './WrDeckItem';
 
 interface StateProps {
   readonly filter: string;
@@ -65,17 +66,8 @@ class WrDeckList extends PureComponent<StateProps> {
       )
       : data.rwDecks.filter((deck) => {
           return filter === '' || deck.name.includes(filter);
-        }).map(({ id, name, owner: { email } }: WrDeck) => (
-        <Card key={id} as={Link} from="/dashboard/deck" to={`/dashboard/deck/${id}`}>
-          <Card.Content>
-            <Card.Header>
-              {name}
-            </Card.Header>
-            <Card.Meta>
-              by {email}
-            </Card.Meta>
-          </Card.Content>
-        </Card>
+        }).map((deck: WrDeck) => (
+        <WrDeckItem key={deck.id} deck={deck} />
       ));
     return (
       <>

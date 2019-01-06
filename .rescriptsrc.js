@@ -1,8 +1,7 @@
-const fs = require("fs");
-const { overrideDevServer } = require("customize-cra");
+const fs = require('fs');
 
-module.exports = {
-  devServer: overrideDevServer((config) => {
+module.exports = [{
+  devServer: (config) => {
     // TODO: implement actual CSP
     config.headers = Object.assign({}, config.headers, {
       // "Content-Security-Policy": "default-src 'unsafe-eval' 'unsafe-inline' *"
@@ -14,5 +13,5 @@ module.exports = {
       };
     }
     return config;
-  })
-};
+  }
+}];

@@ -64,11 +64,7 @@ class WrRoomDetail extends PureComponent<Props> {
       && <Card.Content>Error: {error.message}</Card.Content>;
     return (
       <>
-        <Segment as="section" vertical={true} basic={true}>
-          <Container>
-            <WrCardListNavbar />
-          </Container>
-        </Segment>
+        <WrCardListNavbar />
         <Segment as="section" vertical={true} basic={true}>
           <Container>
             <Card fluid={true}>

@@ -7,6 +7,7 @@ import { WrState } from './store';
 import { createSignout, SigninAction } from './signin/actions';
 import { CurrentUser } from './signin/types';
 import { restartWsConnection } from './apolloClient';
+import { WriteRiteMark } from './util';
 
 interface OwnProps {
   readonly dashboardPage?: string;
@@ -44,7 +45,7 @@ class WrNavbar extends PureComponent<Props> {
     return (
       <Menu stackable={true}>
         <Menu.Item as={Link} header={true} to="/">
-          WriteRite
+          <WriteRiteMark />
         </Menu.Item>
         {user && renderDashboardNav(dashboardPage)}
         {children}

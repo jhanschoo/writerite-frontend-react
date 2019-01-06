@@ -3,6 +3,7 @@ import { Container, Segment, Grid, Header } from 'semantic-ui-react';
 
 import WrNavbar from './WrNavbar';
 import WrSignin from './signin/WrSignin';
+import { WriteRiteMark } from './util';
 
 class HomeView extends PureComponent {
   public readonly render = () => {
@@ -19,7 +20,7 @@ class HomeView extends PureComponent {
               <Grid.Row>
                 <Grid.Column width={9} textAlign="center" verticalAlign="middle">
                   <Header as="h1">
-                    <em>Writerite</em> is for learning with flashcards and
+                    <WriteRiteMark /> is for learning with flashcards and
                     friends.
                 </Header>
                 </Grid.Column>

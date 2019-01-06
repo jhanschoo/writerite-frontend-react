@@ -2,8 +2,6 @@ import React, { Component, ChangeEvent } from 'react';
 
 import { Card, Input } from 'semantic-ui-react';
 
-import { withRouter, RouteComponentProps } from 'react-router';
-
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import {
   ROOM_MESSAGE_CREATE,
@@ -11,9 +9,9 @@ import {
 } from './gql';
 import { printApolloError } from '../util';
 
-type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
-
-type OwnProps = RoomDetailRouteProps;
+interface OwnProps {
+  roomId: string;
+}
 
 type Props = OwnProps;
 
@@ -67,7 +65,7 @@ class WrRoomDetail extends Component<Props> {
   private readonly handleSendMessage = (
     mutate: MutationFn<RoomMessageCreateData, RoomMessageCreateVariables>,
   ) => () => {
-    const { roomId } = this.props.match.params;
+    const { roomId } = this.props;
     const { inputValue } = this.state;
     mutate({
       variables: {
@@ -83,4 +81,4 @@ class WrRoomDetail extends Component<Props> {
   }
 }
 
-export default withRouter<OwnProps>(WrRoomDetail);
+export default WrRoomDetail;

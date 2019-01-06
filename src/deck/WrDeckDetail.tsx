@@ -13,6 +13,7 @@ import { CurrentUser } from '../signin/types';
 
 import WrNavbar from '../WrNavbar';
 import WrCardsList from '../card/WrCardsList';
+import WrCardListNavbar from '../card/WrCardListNavbar';
 
 type DeckDetailRouteProps = RouteComponentProps<{ deckId: string }>;
 type OwnProps = DeckDetailRouteProps;
@@ -51,7 +52,7 @@ class WrRoomDetail extends PureComponent<Props> {
           <Placeholder.Line />
         </Placeholder>
       </Card.Header>
-    ) :  (<Card.Header>name</Card.Header>);
+    ) :  (<Card.Header>{name}</Card.Header>);
     const formattedOwner = (loading) ? (
       <Card.Meta>
         <Placeholder>
@@ -65,7 +66,7 @@ class WrRoomDetail extends PureComponent<Props> {
       <>
         <Segment as="section" vertical={true} basic={true}>
           <Container>
-            <WrNavbar dashboardPage="Deck" />
+            <WrCardListNavbar />
           </Container>
         </Segment>
         <Segment as="section" vertical={true} basic={true}>

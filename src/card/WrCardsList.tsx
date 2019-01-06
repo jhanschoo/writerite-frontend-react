@@ -12,11 +12,18 @@ import { WrCard } from './types';
 import WrCardItem from './WrCardItem';
 
 import WrCardsListSubscriptionHelper from './WrCardsListSubscriptionHelper';
+import { connect } from 'react-redux';
+import { WrState } from '../store';
+import { initialState } from './reducers';
+
+interface StateProps {
+  readonly filter: string;
+}
 
 interface OwnProps {
   deckId: string;
 }
-type Props = OwnProps;
+type Props = StateProps & OwnProps;
 
 const formattedLoadingCards = (
   <Card key="card-list-placeholder-0">
@@ -63,6 +70,7 @@ class WrCardsList extends Component<Props> {
   private readonly renderComments = ({
     subscribeToMore, loading, error, data,
   }: QueryResult<CardsData, CardsVariables>) => {
+    const { filter } = this.props;
     if (error) {
       return null;
     }
@@ -72,12 +80,17 @@ class WrCardsList extends Component<Props> {
     const { deckId } = this.props;
     const formattedMessages = (loading || !data || !data.rwCardsOfDeck)
       ? formattedLoadingCards
-      : data.rwCardsOfDeck.map(({ id, front, back }: WrCard) => {
+      : data.rwCardsOfDeck.filter((room) => {
+        return filter === '' || room.front.includes(filter) || room.back.includes(filter);
+      }).map(({ id, front, back }: WrCard) => {
         return <WrCardItem key={id} id={id} front={front} back={back} deckId={deckId} />;
       });
     return (
       <>
-        {<WrCardsListSubscriptionHelper subscribeToMore={subscribeToMore} deckId={deckId} />}
+        <WrCardsListSubscriptionHelper
+          subscribeToMore={subscribeToMore}
+          deckId={deckId}
+        />
         <Card.Content>
           <Card.Group itemsPerRow={1}>
             {formattedMessages}
@@ -89,4 +102,9 @@ class WrCardsList extends Component<Props> {
   }
 }
 
-export default WrCardsList;
+const mapStateToProps = (state: WrState): StateProps => {
+  const { filter } = (state.card) || initialState;
+  return { filter };
+};
+
+export default connect(mapStateToProps)(WrCardsList);

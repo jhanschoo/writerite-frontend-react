@@ -1,7 +1,7 @@
 import React, { PureComponent, ChangeEvent } from 'react';
 
 import { connect } from 'react-redux';
-import { SetDeckFilterAction, resetDeckFilter, setDeckFilter } from './actions';
+import { SetCardFilterAction, resetCardFilter, setCardFilter } from './actions';
 
 import { Segment, Container, Menu, Input } from 'semantic-ui-react';
 
@@ -14,18 +14,18 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  resetDeckFilter: () => SetDeckFilterAction;
-  handleFilterInputChange: (e: ChangeEvent<HTMLInputElement>) => SetDeckFilterAction;
+  resetCardFilter: () => SetCardFilterAction;
+  handleFilterInputChange: (e: ChangeEvent<HTMLInputElement>) => SetCardFilterAction;
 }
 
 type Props = StateProps & DispatchProps;
 
-class WrDeckListNavbar extends PureComponent<Props> {
+class WrCardListNavbar extends PureComponent<Props> {
 
   public readonly componentDidMount = () => {
     // tslint:disable-next-line: no-shadowed-variable
-    const { resetDeckFilter } = this.props;
-    resetDeckFilter();
+    const { resetCardFilter } = this.props;
+    resetCardFilter();
   }
 
   public readonly render = () => {
@@ -33,13 +33,13 @@ class WrDeckListNavbar extends PureComponent<Props> {
     return (
       <Segment as="section" vertical={true} basic={true}>
         <Container>
-          <WrNavbar dashboardPage="Decks">
+          <WrNavbar dashboardPage="Deck">
             <Menu.Item>
               <Input
                 transparent={true}
                 icon="search"
                 iconPosition="left"
-                placeholder="Search for a deck..."
+                placeholder="Search for a card..."
                 onChange={handleFilterInputChange}
                 value={filter}
               />
@@ -52,15 +52,15 @@ class WrDeckListNavbar extends PureComponent<Props> {
 }
 
 const mapStateToProps = (state: WrState): StateProps => {
-  const { filter } = (state.deck) || initialState;
+  const { filter } = (state.card) || initialState;
   return { filter };
 };
 
 const mapDispatchToProps: DispatchProps = {
-  resetDeckFilter,
+  resetCardFilter,
   handleFilterInputChange: (e: ChangeEvent<HTMLInputElement>) => {
-    return setDeckFilter(e.target.value);
+    return setCardFilter(e.target.value);
   },
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(WrDeckListNavbar);
+export default connect(mapStateToProps, mapDispatchToProps)(WrCardListNavbar);

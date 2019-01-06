@@ -86,7 +86,7 @@ class WrRoomDetail extends PureComponent<Props> {
           {formattedOccupantEmails}
         </Card.Content>
         <WrRoomFeed roomId={roomId} />
-        <WrRoomMessageInput />
+        <WrRoomMessageInput roomId={roomId} />
       </Card>
     );
   }

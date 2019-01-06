@@ -9,14 +9,16 @@ export interface SigninAction {
   readonly data: OptionalUserAndToken;
 }
 
-export const createSignin = (data: OptionalUserAndToken): SigninAction => {
+export type AuthorizationAction = SigninAction;
+
+export const createSignin = (data: OptionalUserAndToken): AuthorizationAction => {
   return {
     type: ActionTypes.SIGNIN,
     data,
   };
 };
 
-export const createSignout = (): SigninAction => {
+export const createSignout = (): AuthorizationAction => {
   return {
     type: ActionTypes.SIGNIN,
     data: null,

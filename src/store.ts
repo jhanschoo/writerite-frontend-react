@@ -2,9 +2,15 @@ import { createStore, Store } from 'redux';
 import { rootReducer } from './reducers';
 
 import { SigninState } from './signin/reducers';
+import { DeckState } from './deck/reducers';
+import { RoomState } from './room/reducers';
+import { CardState } from './card/reducers';
 
 export interface WrState {
   readonly signin?: SigninState;
+  readonly deck?: DeckState;
+  readonly room?: RoomState;
+  readonly card?: CardState;
 }
 
 type WrStore = Store<WrState>;

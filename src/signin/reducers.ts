@@ -1,4 +1,4 @@
-import { ActionTypes, SigninAction } from './actions';
+import { ActionTypes, AuthorizationAction } from './actions';
 import { OptionalUserAndToken } from './types';
 
 export interface SigninState {
@@ -10,12 +10,13 @@ export const initialState: SigninState = {
 };
 
 export const signin = (
-  state: SigninState = initialState, action: SigninAction,
+  state: SigninState = initialState, action: AuthorizationAction,
 ): SigninState => {
-  switch (action.type) {
+  const { type, data } = action;
+  switch (type) {
     case ActionTypes.SIGNIN:
       return Object.assign({}, state, {
-        data: action.data,
+        data,
       });
     default:
       return state;

@@ -27,15 +27,11 @@ declare var gapiDeferred: Promise<any>;
 declare var grecaptchaDeferred: Promise<any>;
 declare var FBDeferred: Promise<any>;
 
-type OwnProps = object;
-
 interface DispatchProps {
   createSignin: (data: OptionalUserAndToken) => SigninAction;
 }
 
-type StateProps = object;
-
-type Props = StateProps & DispatchProps & OwnProps & RouteComponentProps;
+type Props = DispatchProps & RouteComponentProps;
 
 const handleGoogleSignin = (
   mutate: MutationFn<SigninData, SigninVariables>,
@@ -315,8 +311,8 @@ const mapDispatchToProps: DispatchProps = {
   createSignin,
 };
 
-export default withRouter<OwnProps & RouteComponentProps>(
+export default withRouter<RouteComponentProps>(
   connect<
-    StateProps, DispatchProps, OwnProps & RouteComponentProps, WrState
+    {}, DispatchProps, RouteComponentProps, WrState
   >(mapStateToProps, mapDispatchToProps)(WrSignin),
 );

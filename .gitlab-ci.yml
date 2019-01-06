@@ -10,8 +10,10 @@ pages:
   - export NODE_ENV=production
   - npm install
   - npm run build
+  - mv public srcPublic
+  - mv build public
   artifacts:
     paths:
-    - build
+    - public
   only:
   - master

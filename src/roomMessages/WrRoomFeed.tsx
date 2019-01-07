@@ -9,6 +9,8 @@ import WrRoomFeedSubscriptionHelper from './WrRoomFeedSubscriptionHelper';
 import { Segment, Comment, Placeholder, Ref, Visibility } from 'semantic-ui-react';
 import { emailToGravatarLink, printApolloError } from '../util';
 
+import './WrRoomFeed.css';
+
 interface Props {
   roomId: string;
 }

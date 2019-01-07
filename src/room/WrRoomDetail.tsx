@@ -1,7 +1,6 @@
-import React, { PureComponent, SyntheticEvent, createRef } from 'react';
+import React, { PureComponent } from 'react';
 
-import { Segment, Container, Placeholder, Header, Grid, Dropdown } from 'semantic-ui-react';
-import './WrRoomDetail.css';
+import { Segment, Container, Placeholder, Header, Grid } from 'semantic-ui-react';
 
 import { RouteComponentProps } from 'react-router';
 

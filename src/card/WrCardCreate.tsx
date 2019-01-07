@@ -38,7 +38,7 @@ class WrCardCreate extends Component<Props, State> {
   }
 
   public readonly render = () => {
-    const { handleResetState, renderCardCreate } = this;
+    const { resetState: handleResetState, renderCardCreate } = this;
     return (
       <Mutation<CardCreateData, CardCreateVariables>
         mutation={CARD_CREATE_MUTATION}
@@ -58,7 +58,7 @@ class WrCardCreate extends Component<Props, State> {
     const { deckId } = this.props;
     const {
       handleFrontInputChange, handleBackInputChange, handleSwapSides,
-      handleShowInput, handleResetState, focusRef,
+      handleShowInput, resetState, focusRef,
     } = this;
     const handleCardCreate = () => {
       return mutate({
@@ -72,7 +72,7 @@ class WrCardCreate extends Component<Props, State> {
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'Escape':
-          handleResetState();
+          resetState();
           break;
         case 'Enter':
           handleCardCreate();
@@ -109,7 +109,7 @@ class WrCardCreate extends Component<Props, State> {
                     <WrTooltip content="Cancel">
                       <Button
                         icon="undo"
-                        onClick={handleResetState}
+                        onClick={resetState}
                       />
                     </WrTooltip>
                     <WrTooltip content="Swap front and back">
@@ -163,7 +163,7 @@ class WrCardCreate extends Component<Props, State> {
     this.setState({ showInput: true, frontInput: '', backInput: '' });
   }
 
-  private readonly handleResetState = () => {
+  private readonly resetState = () => {
     this.setState({ showInput: false, frontInput: '', backInput: '' });
   }
 }

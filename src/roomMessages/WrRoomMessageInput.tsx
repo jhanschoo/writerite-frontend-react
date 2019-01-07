@@ -40,12 +40,41 @@ class WrRoomDetail extends Component<Props> {
     mutate: MutationFn<RoomMessageCreateData, RoomMessageCreateVariables>,
     { loading }: MutationResult<RoomMessageCreateData>,
   ) => {
-    const { handleSendMessage, handleInputMessageChange } = this;
+    const { roomId } = this.props;
+    const { inputValue } = this.state;
+    const { handleInputMessageChange } = this;
+    const handleSendMessage = () => mutate({
+      variables: {
+        roomId,
+        content: inputValue,
+      },
+    });
     const buttonProps = {
       loading,
       icon: (loading) ? undefined : 'play',
       primary: true,
-      onClick: handleSendMessage(mutate),
+      onClick: handleSendMessage,
+    };
+    const handleKeyPress = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Enter':
+          if (
+            e.getModifierState('Alt') ||
+            e.getModifierState('AltGraph') ||
+            e.getModifierState('Control') ||
+            e.getModifierState('Fn') ||
+            e.getModifierState('Hyper') ||
+            e.getModifierState('Meta') ||
+            e.getModifierState('OS') ||
+            e.getModifierState('Shift') ||
+            e.getModifierState('Super') ||
+            e.getModifierState('Symbol')
+          ) {
+            break;
+          }
+          handleSendMessage();
+          break;
+      }
     };
     return (
       <Input
@@ -54,26 +83,13 @@ class WrRoomDetail extends Component<Props> {
         value={this.state.inputValue}
         onChange={handleInputMessageChange}
         action={buttonProps}
+        onKeyDown={handleKeyPress}
       />
     );
   }
 
   private readonly handleInputMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({ inputValue: e.target.value });
-  }
-
-  private readonly handleSendMessage = (
-    mutate: MutationFn<RoomMessageCreateData, RoomMessageCreateVariables>,
-  ) => () => {
-    const { roomId } = this.props;
-    const { inputValue } = this.state;
-    mutate({
-      variables: {
-        roomId,
-        content: inputValue,
-      },
-    });
-    return null;
   }
 
   private readonly handleMessageSent = (_data: RoomMessageCreateData) => {

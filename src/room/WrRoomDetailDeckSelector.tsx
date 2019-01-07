@@ -6,6 +6,8 @@ import { Dropdown } from 'semantic-ui-react';
 import { printApolloError } from '../util';
 import { RoomServeDeckVariables, RoomServeDeckData, ROOM_SERVE_DECK } from './gql';
 
+import './WrRoomDetailDeckSelector.css';
+
 interface Props {
   roomId: string;
   currentDeck?: WrDeck;

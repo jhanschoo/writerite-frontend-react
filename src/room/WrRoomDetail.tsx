@@ -11,7 +11,6 @@ import { printApolloError } from '../util';
 import WrNavbar from '../WrNavbar';
 import WrRoomMessageInput from '../roomMessages/WrRoomMessageInput';
 import WrRoomFeed from '../roomMessages/WrRoomFeed';
-import { DecksData, DecksVariables, DECKS_QUERY } from '../deck/gql';
 import WrRoomDetailDeckSelector from './WrRoomDetailDeckSelector';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
@@ -69,15 +68,15 @@ class WrRoomDetail extends PureComponent<Props> {
         );
         return (
           <Segment>
-            <Grid>
-              <Grid.Column width={8}>
+            <Grid stackable={true}>
+              <Grid.Column width={10}>
                 <Header as="h3">
                   {name}
                   {formattedOwnerInfo}
                   {formattedOccupantEmails}
                 </Header>
               </Grid.Column>
-              <Grid.Column width={4} textAlign="right">
+              <Grid.Column width={6} textAlign="right">
                 <WrRoomDetailDeckSelector
                   roomId={roomId}
                   currentDeck={data.rwRoom.servingDeck}

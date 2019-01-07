@@ -18,6 +18,14 @@ query Room($roomId: ID!) {
       id
       email
     }
+    servingDeck {
+      id
+      name
+      owner {
+        id
+        email
+      }
+    }
   }
 }
 `;
@@ -54,8 +62,8 @@ export interface RoomsData {
 // RoomCreate mutation
 
 export const ROOM_CREATE_MUTATION = gql`
-mutation RoomCreate($name: String! $deckId: ID!) {
-  rwRoomCreate(name: $name deckId: $deckId) {
+mutation RoomCreate($name: String) {
+  rwRoomCreate(name: $name) {
     id
     name
   }
@@ -63,12 +71,35 @@ mutation RoomCreate($name: String! $deckId: ID!) {
 `;
 
 export interface RoomCreateVariables {
-  name: string;
-  deckId: string;
+  name?: string;
 }
 
 export interface RoomCreateData {
   rwRoomCreate: WrRoom | null;
+}
+
+// RoomServeDeck mutation
+
+export const ROOM_SERVE_DECK = gql`
+mutation RoomServeDeck($id: ID! $deckId: ID) {
+  rwRoomServeDeck(id: $id deckId: $deckId) {
+    id
+    name
+    owner {
+      id
+      email
+    }
+  }
+}
+`;
+
+export interface RoomServeDeckVariables {
+  id: string;
+  deckId?: string;
+}
+
+export interface RoomServeDeckData {
+  rwRoomServeDeck: WrRoom | null;
 }
 
 // RoomUpdatesSubscription
@@ -85,6 +116,7 @@ subscription RoomUpdates {
         email
       }
     }
+    oldId
   }
 }
 `;

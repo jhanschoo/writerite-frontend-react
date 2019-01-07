@@ -257,6 +257,7 @@ class WrSignin extends Component<Props> {
           mutation={SIGNIN}
           onCompleted={handleSigninSuccess}
           onError={printApolloError}
+          fetchPolicy="no-cache"
           ignoreResults={true}
         >
           {renderForm}

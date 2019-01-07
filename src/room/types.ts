@@ -1,4 +1,5 @@
-import { User, MutationType, Payload } from '../types';
+import { User, Payload } from '../types';
+import { WrDeck } from '../deck/types';
 
 export interface WrRoom {
   id: string;
@@ -11,6 +12,7 @@ export interface WrRoomDetail extends WrRoom {
   name: string;
   owner: User;
   occupants: User[];
+  servingDeck?: WrDeck;
 }
 
 // subscription types

@@ -1,6 +1,6 @@
 import React, { Component, ChangeEvent } from 'react';
 
-import { Card, Input } from 'semantic-ui-react';
+import { Segment, Input } from 'semantic-ui-react';
 
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import {
@@ -23,7 +23,7 @@ class WrRoomDetail extends Component<Props> {
   public readonly render = () => {
     const { inputBox } = this;
     return (
-      <Card.Content>
+      <Segment>
         <Mutation<RoomMessageCreateData, RoomMessageCreateVariables>
           mutation={ROOM_MESSAGE_CREATE}
           onCompleted={this.handleMessageSent}
@@ -32,7 +32,7 @@ class WrRoomDetail extends Component<Props> {
         >
           {inputBox}
         </Mutation>
-      </Card.Content>
+      </Segment>
     );
   }
 

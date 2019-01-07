@@ -35,6 +35,15 @@ class WrDeckItem extends Component<Props, State> {
 
   private readonly focusRef = createRef<Input>();
 
+  public readonly componentDidUpdate = (_prevProps: Props, prevState: State) => {
+    const { display: prevDisplay } = prevState;
+    const { display } = this.state;
+    const { focusRef } = this;
+    if (prevDisplay === Display.SHOW && display === Display.EDIT && focusRef.current) {
+      focusRef.current.focus();
+    }
+  }
+
   public readonly render = () => {
     const { renderDeckItemShow, renderDeckItemEdit, renderDeckItemConfirmDelete } = this;
     const { display } = this.state;
@@ -63,7 +72,7 @@ class WrDeckItem extends Component<Props, State> {
     { loading }: MutationResult<DeckDeleteData>,
   ) => {
     const { id } = this.props.deck;
-    const { handleShow } = this;
+    const { handleDisplayShow } = this;
     const handleDelete = () => mutate({
       variables: {
         id,
@@ -72,7 +81,7 @@ class WrDeckItem extends Component<Props, State> {
     return (
       <Card.Content extra={true} textAlign="center">
         <WrTooltip content="Back">
-          <Button primary={true} onClick={handleShow} disabled={loading}>
+          <Button primary={true} onClick={handleDisplayShow} disabled={loading}>
             No, don't
           </Button>
         </WrTooltip>
@@ -163,7 +172,7 @@ class WrDeckItem extends Component<Props, State> {
 
   private readonly renderDeckItemShow = () => {
     const { id, name, owner: { email } } = this.props.deck;
-    const { handleEdit, handleConfirmDelete } = this;
+    const { handleDisplayEdit, handleDisplayConfirmDelete } = this;
     return (
       <Card key={id} as={Link} from="/dashboard/deck" to={`/dashboard/deck/${id}`}>
         <Card.Content>
@@ -177,10 +186,10 @@ class WrDeckItem extends Component<Props, State> {
         <Card.Content textAlign="center" extra={true}>
           <Button.Group>
             <WrTooltip content="Edit">
-              <Button icon="edit" primary={true} onClick={handleEdit} />
+              <Button icon="edit" primary={true} onClick={handleDisplayEdit} />
             </WrTooltip>
             <WrTooltip content="Delete">
-              <Button icon="trash" color="red" onClick={handleConfirmDelete} />
+              <Button icon="trash" color="red" onClick={handleDisplayConfirmDelete} />
             </WrTooltip>
           </Button.Group>
         </Card.Content>
@@ -192,18 +201,18 @@ class WrDeckItem extends Component<Props, State> {
     this.setState(initialState);
   }
 
-  private readonly handleShow = (e: React.MouseEvent<HTMLButtonElement>) => {
+  private readonly handleDisplayShow = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     this.setState({ display: Display.SHOW });
   }
 
-  private readonly handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  private readonly handleDisplayEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const { name } = this.props.deck;
     this.setState({ display: Display.EDIT, nameInput: name });
   }
 
-  private readonly handleConfirmDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+  private readonly handleDisplayConfirmDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     this.setState({ display: Display.CONFIRM_DELETE });
   }

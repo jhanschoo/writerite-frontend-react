@@ -48,7 +48,7 @@ export interface DecksData {
 // DeckCreate mutation
 
 export const DECK_CREATE_MUTATION = gql`
-mutation DeckCreate($name: String!) {
+mutation DeckCreate($name: String) {
   rwDeckSave(name: $name) {
     id
     name
@@ -57,7 +57,7 @@ mutation DeckCreate($name: String!) {
 `;
 
 export interface DeckCreateVariables {
-  name: string;
+  name?: string;
 }
 
 export interface DeckCreateData {

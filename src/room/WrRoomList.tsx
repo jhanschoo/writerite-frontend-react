@@ -83,7 +83,7 @@ class WrRoomList extends PureComponent<StateProps> {
     return (
       <>
         <WrRoomListSubscriptionHelper subscribeToMore={subscribeToMore} />
-        <Card.Group itemsPerRow={1}>
+        <Card.Group itemsPerRow={3}>
           {list}
           <WrRoomCreate />
         </Card.Group>

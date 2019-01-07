@@ -6,7 +6,7 @@ import {
 } from './gql';
 import WrRoomFeedSubscriptionHelper from './WrRoomFeedSubscriptionHelper';
 
-import { Card, Comment, Placeholder, Ref, Visibility } from 'semantic-ui-react';
+import { Segment, Comment, Placeholder, Ref, Visibility } from 'semantic-ui-react';
 import { emailToGravatarLink, printApolloError } from '../util';
 
 interface Props {
@@ -55,7 +55,7 @@ class WrRoomFeed extends Component<Props, State> {
     const { feedRef, renderComments, scrollFeedToBottom } = this;
     return (
       <Ref innerRef={feedRef}>
-        <Card.Content className="room-content">
+        <Segment className="room-content">
           <Query<RoomMessagesData, RoomMessagesVariables>
             query={ROOM_MESSAGES_QUERY}
             variables={{ roomId }}
@@ -64,7 +64,7 @@ class WrRoomFeed extends Component<Props, State> {
           >
             {renderComments}
           </Query>
-        </Card.Content>
+        </Segment>
       </Ref>
     );
   }

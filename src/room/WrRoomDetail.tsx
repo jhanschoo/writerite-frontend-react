@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, SyntheticEvent, createRef } from 'react';
 
-import { Segment, Container, Card, Placeholder } from 'semantic-ui-react';
+import { Segment, Container, Placeholder, Header, Grid, Dropdown } from 'semantic-ui-react';
 import './WrRoomDetail.css';
 
-import { withRouter, RouteComponentProps } from 'react-router';
+import { RouteComponentProps } from 'react-router';
 
 import { Query, QueryResult } from 'react-apollo';
 import { ROOM_QUERY, RoomData, RoomVariables } from './gql';
@@ -12,6 +12,8 @@ import { printApolloError } from '../util';
 import WrNavbar from '../WrNavbar';
 import WrRoomMessageInput from '../roomMessages/WrRoomMessageInput';
 import WrRoomFeed from '../roomMessages/WrRoomFeed';
+import { DecksData, DecksVariables, DECKS_QUERY } from '../deck/gql';
+import WrRoomDetailDeckSelector from './WrRoomDetailDeckSelector';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
@@ -35,6 +37,7 @@ class WrRoomDetail extends PureComponent<Props> {
             <Query<RoomData, RoomVariables>
               query={ROOM_QUERY}
               variables={{ roomId }}
+              fetchPolicy="network-only"
               onError={printApolloError}
             >
               {renderRoom}
@@ -45,8 +48,8 @@ class WrRoomDetail extends PureComponent<Props> {
     );
   }
 
-  private renderRoom = ({
-    loading, error, data,
+  private readonly renderRoom = ({
+    loading, error, data, refetch,
   }: QueryResult<RoomData, RoomVariables>) => {
     const { roomId } = this.props.match.params;
     if (error) {
@@ -55,39 +58,55 @@ class WrRoomDetail extends PureComponent<Props> {
     if (!loading && (!data || !data.rwRoom)) {
       return null;
     }
-    const { name, occupants, owner } = (data && data.rwRoom) || {
-      name: null,
-      occupants: null,
-      owner: null,
-    };
-    const occupantEmails = (loading || !occupants)
-      ? null
-      : occupants.map(({ email }) => email).sort().join(', ');
-    const formattedOccupantEmails = (loading || !occupantEmails)
-      ? null
-      : (<Card.Meta>Also in this room: {occupantEmails}</Card.Meta>);
-    const formattedRoomName = (loading || !name)
-      ? (
-        <Card.Header><Placeholder><Placeholder.Line /></Placeholder></Card.Header>
-      )
-      : (<Card.Header>{name}</Card.Header>);
-    const formattedOwnerInfo = (loading || !owner)
-      ? (
-        <Card.Meta>
-          <Placeholder><Placeholder.Line length="short" /></Placeholder>
-        </Card.Meta>
-      )
-      : (<Card.Meta>{owner.email} is hosting</Card.Meta>);
+    const formattedHeader = (data && data.rwRoom)
+      ? (() => {
+        const { name, occupants, owner } = data.rwRoom;
+        const formattedOwnerInfo = (
+          <Header.Subheader>{owner.email} is hosting</Header.Subheader>
+        );
+        const occupantEmails = occupants.map(({ email }) => email).sort().join(', ');
+        const formattedOccupantEmails = occupantEmails && (
+          <Header.Subheader>Also in this room: {occupantEmails}</Header.Subheader>
+        );
+        return (
+          <Segment>
+            <Grid>
+              <Grid.Column width={8}>
+                <Header as="h3">
+                  {name}
+                  {formattedOwnerInfo}
+                  {formattedOccupantEmails}
+                </Header>
+              </Grid.Column>
+              <Grid.Column width={4} textAlign="right">
+                <WrRoomDetailDeckSelector
+                  roomId={roomId}
+                  currentDeck={data.rwRoom.servingDeck}
+                  onMutation={refetch}
+                  loading={loading}
+                />
+              </Grid.Column>
+            </Grid>
+          </Segment>
+        );
+      })()
+      : (
+        <Segment>
+          <Placeholder>
+            <Placeholder.Header>
+              <Placeholder.Line />
+              <Placeholder.Line />
+              <Placeholder.Line />
+            </Placeholder.Header>
+          </Placeholder>
+        </Segment>
+      );
     return (
-      <Card fluid={true}>
-        <Card.Content>
-          {formattedRoomName}
-          <Card.Meta>{formattedOwnerInfo}</Card.Meta>
-          {formattedOccupantEmails}
-        </Card.Content>
+      <Segment.Group>
+        {formattedHeader}
         <WrRoomFeed roomId={roomId} />
         <WrRoomMessageInput roomId={roomId} />
-      </Card>
+      </Segment.Group>
     );
   }
 }

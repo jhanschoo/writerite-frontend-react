@@ -16,7 +16,7 @@ function gapiAsyncInit() {
     gapi.auth2.init({
       client_id: `${
         document.querySelector("meta[name='wr:google-oauth2-client-id']").getAttribute("content")
-      }.apps.googleusercontent.com`,
+      }`,
     }).then(() => gapiDeferred.override.resolve(gapi));
   });
 }

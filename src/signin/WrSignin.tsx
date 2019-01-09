@@ -2,7 +2,7 @@ import React, { Component, SyntheticEvent } from 'react';
 
 import { OptionalUserAndToken } from './types';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { restartWsConnection } from '../apolloClient';
 import { SIGNIN, SigninVariables, SigninData } from './gql';
 
@@ -138,6 +138,7 @@ class WrSignin extends Component<Props> {
     const { handleSigninSuccess, toggleSignin } = this;
     const renderForm = (
       mutate: MutationFn<SigninData, SigninVariables>,
+      { loading }: MutationResult<SigninData>,
     ) => {
       const renderFields = (props: FormikProps<FormValues>) => {
         const {
@@ -176,10 +177,22 @@ class WrSignin extends Component<Props> {
         );
         return (
           <Form onSubmit={handleSubmit}>
-            <Form.Button type="button" color="google plus" fluid={true} onClick={handleGoogleSignin(mutate)}>
+            <Form.Button
+              type="button"
+              color="google plus"
+              fluid={true}
+              disabled={loading}
+              onClick={handleGoogleSignin(mutate)}
+            >
               Sign in with Google
             </Form.Button>
-            <Form.Button type="button" color="facebook" fluid={true} onClick={handleFacebookSignin(mutate)}>
+            <Form.Button
+              type="button"
+              color="facebook"
+              disabled={loading}
+              fluid={true}
+              onClick={handleFacebookSignin(mutate)}
+            >
               Sign in with Facebook
             </Form.Button>
             <Divider horizontal={true}>or</Divider>
@@ -190,6 +203,7 @@ class WrSignin extends Component<Props> {
                 type="email"
                 name="email"
                 placeholder="Email"
+                disabled={loading}
                 fluid={true}
               />
               {maybeError('email')}
@@ -201,6 +215,7 @@ class WrSignin extends Component<Props> {
                 type="password"
                 name="password"
                 placeholder="Password"
+                disabled={loading}
                 fluid={true}
               />
               {formattedPasswordError}
@@ -215,6 +230,7 @@ class WrSignin extends Component<Props> {
                 type="password"
                 name="confirmPassword"
                 placeholder="Confirm Password (required for new users)"
+                disabled={loading}
                 fluid={true}
               />
             </Form.Field>
@@ -227,7 +243,12 @@ class WrSignin extends Component<Props> {
                 {maybeError('recaptcha')}
               </Container>
             </Form.Field>
-            <Form.Button type="submit" fluid={true} primary={true}>
+            <Form.Button
+              type="submit"
+              fluid={true}
+              primary={true}
+              disabled={loading}
+            >
               {isSignin ? 'Sign in with Password' : 'Login with Password'}
             </Form.Button>
             <div>
@@ -258,7 +279,6 @@ class WrSignin extends Component<Props> {
           onCompleted={handleSigninSuccess}
           onError={printApolloError}
           fetchPolicy="no-cache"
-          ignoreResults={true}
         >
           {renderForm}
         </Mutation>

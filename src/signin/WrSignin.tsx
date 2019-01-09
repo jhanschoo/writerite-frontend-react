@@ -2,7 +2,7 @@ import React, { Component, SyntheticEvent } from 'react';
 
 import { OptionalUserAndToken } from './types';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { restartWsConnection } from '../apolloClient';
 import { SIGNIN, SigninVariables, SigninData } from './gql';
 
@@ -32,46 +32,6 @@ interface DispatchProps {
 }
 
 type Props = DispatchProps & RouteComponentProps;
-
-const handleGoogleSignin = (
-  mutate: MutationFn<SigninData, SigninVariables>,
-) => async (): Promise<void> => {
-  const googleAuth = (await gapiDeferred).auth2.getAuthInstance();
-  return googleAuth.signIn().then((googleUser: any) => {
-    mutate({
-      variables: {
-        email: googleUser.getBasicProfile().getEmail(),
-        token: googleUser.getAuthResponse().id_token,
-        authorizer: 'GOOGLE',
-        identifier: googleUser.getId(),
-      },
-    });
-  });
-};
-
-const handleFacebookSignin = (
-  mutate: MutationFn<SigninData, SigninVariables>,
-) => async (): Promise<void> => {
-  return (await FBDeferred).login(async (loginResponse: any) => {
-    const { authResponse } = loginResponse;
-    if (authResponse) {
-      (await FBDeferred).api('/me', {
-        fields: 'name,email',
-      }, (apiResponse: any) => {
-        mutate({
-          variables: {
-            email: apiResponse.email,
-            token: authResponse.accessToken,
-            authorizer: 'FACEBOOK',
-            identifier: authResponse.userID,
-          },
-        });
-      });
-    }
-  }, {
-      scope: 'public_profile,email',
-    });
-};
 
 const handleLocalSignin = (
   mutate: MutationFn<SigninData, SigninVariables>,
@@ -127,6 +87,7 @@ class WrSignin extends Component<Props> {
 
   public readonly state = {
     isSignin: formInitialValues.isSignin,
+    thirdPartySigninUnderway: false,
   };
 
   public readonly componentDidMount = () => {
@@ -138,6 +99,7 @@ class WrSignin extends Component<Props> {
     const { handleSigninSuccess, toggleSignin } = this;
     const renderForm = (
       mutate: MutationFn<SigninData, SigninVariables>,
+      { loading }: MutationResult<SigninData>,
     ) => {
       const renderFields = (props: FormikProps<FormValues>) => {
         const {
@@ -150,6 +112,11 @@ class WrSignin extends Component<Props> {
           errors,
           touched,
         } = props;
+        const {
+          setThirdPartySigninUnderway,
+          unsetThirdPartySigninUnderway,
+        } = this;
+        const { thirdPartySigninUnderway } = this.state;
         this.recaptchaCallback = (gRecaptchaResponse: string) => {
           setFieldTouched('recaptcha');
           setFieldValue('recaptcha', gRecaptchaResponse || '');
@@ -174,12 +141,64 @@ class WrSignin extends Component<Props> {
             {errors.password || errors.confirmPassword}
           </Label>
         );
+
+        const handleGoogleSignin = async (): Promise<void> => {
+          await setThirdPartySigninUnderway();
+          const googleAuth = (await gapiDeferred).auth2.getAuthInstance();
+          return googleAuth.signIn().then((googleUser: any) => {
+            return mutate({
+              variables: {
+                email: googleUser.getBasicProfile().getEmail(),
+                token: googleUser.getAuthResponse().id_token,
+                authorizer: 'GOOGLE',
+                identifier: googleUser.getId(),
+              },
+            }).finally(() => unsetThirdPartySigninUnderway());
+          }, () => unsetThirdPartySigninUnderway());
+        };
+        const handleFacebookSignin = async (): Promise<void> => {
+          await setThirdPartySigninUnderway();
+          return (await FBDeferred).login(async (loginResponse: any) => {
+            const { authResponse } = loginResponse;
+            if (authResponse) {
+              (await FBDeferred).api('/me', {
+                fields: 'name,email',
+              }, (apiResponse: any) => {
+                mutate({
+                  variables: {
+                    email: apiResponse.email,
+                    token: authResponse.accessToken,
+                    authorizer: 'FACEBOOK',
+                    identifier: authResponse.userID,
+                  },
+                }).finally(() => unsetThirdPartySigninUnderway());
+              });
+            } else {
+              unsetThirdPartySigninUnderway();
+            }
+          }, {
+              scope: 'public_profile,email',
+            });
+        };
+        const disabled = thirdPartySigninUnderway || loading;
         return (
           <Form onSubmit={handleSubmit}>
-            <Form.Button type="button" color="google plus" fluid={true} onClick={handleGoogleSignin(mutate)}>
+            <Form.Button
+              type="button"
+              color="google plus"
+              fluid={true}
+              disabled={disabled}
+              onClick={handleGoogleSignin}
+            >
               Sign in with Google
             </Form.Button>
-            <Form.Button type="button" color="facebook" fluid={true} onClick={handleFacebookSignin(mutate)}>
+            <Form.Button
+              type="button"
+              color="facebook"
+              disabled={disabled}
+              fluid={true}
+              onClick={handleFacebookSignin}
+            >
               Sign in with Facebook
             </Form.Button>
             <Divider horizontal={true}>or</Divider>
@@ -190,6 +209,7 @@ class WrSignin extends Component<Props> {
                 type="email"
                 name="email"
                 placeholder="Email"
+                disabled={disabled}
                 fluid={true}
               />
               {maybeError('email')}
@@ -201,6 +221,7 @@ class WrSignin extends Component<Props> {
                 type="password"
                 name="password"
                 placeholder="Password"
+                disabled={disabled}
                 fluid={true}
               />
               {formattedPasswordError}
@@ -215,6 +236,7 @@ class WrSignin extends Component<Props> {
                 type="password"
                 name="confirmPassword"
                 placeholder="Confirm Password (required for new users)"
+                disabled={disabled}
                 fluid={true}
               />
             </Form.Field>
@@ -227,7 +249,12 @@ class WrSignin extends Component<Props> {
                 {maybeError('recaptcha')}
               </Container>
             </Form.Field>
-            <Form.Button type="submit" fluid={true} primary={true}>
+            <Form.Button
+              type="submit"
+              fluid={true}
+              primary={true}
+              disabled={disabled}
+            >
               {isSignin ? 'Sign in with Password' : 'Login with Password'}
             </Form.Button>
             <div>
@@ -258,7 +285,6 @@ class WrSignin extends Component<Props> {
           onCompleted={handleSigninSuccess}
           onError={printApolloError}
           fetchPolicy="no-cache"
-          ignoreResults={true}
         >
           {renderForm}
         </Mutation>
@@ -293,6 +319,18 @@ class WrSignin extends Component<Props> {
         });
       });
     }
+  }
+
+  private readonly setThirdPartySigninUnderway = () => {
+    return new Promise((res, rej) => {
+      this.setState({ thirdPartySigninUnderway: true }, () => res());
+    });
+  }
+
+  private readonly unsetThirdPartySigninUnderway = () => {
+    return new Promise((res, rej) => {
+      this.setState({ thirdPartySigninUnderway: false }, () => res());
+    });
   }
 
   private readonly handleSigninSuccess = ({ signin }: SigninData) => {

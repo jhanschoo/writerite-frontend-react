@@ -1,28 +1,35 @@
-
-const createDeferred = function () {
-  var override = {};
-  var q = new Promise((resolve, reject) => {
-    override.resolve = resolve;
-    override.reject = reject;
-  });
-  q.override = override;
-  return q;
-};
-const gapiDeferred = createDeferred();
-const FBDeferred = createDeferred();
-const grecaptchaDeferred = createDeferred();
-function gapiAsyncInit() {
-  gapi.load('auth2', function () {
-    gapi.auth2.init({
-      client_id: `${
-        document.querySelector("meta[name='wr:google-oauth2-client-id']").getAttribute("content")
-      }`,
-    }).then(() => gapiDeferred.override.resolve(gapi));
-  });
-}
-function recaptchaAsyncInit() {
-  grecaptchaDeferred.override.resolve(grecaptcha);
-}
-function fbAsyncInit() {
-  FBDeferred.override.resolve(FB);
-}
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+(() => {
+  const createDeferred = () => {
+    let res = null;
+    const q = new Promise((resolve, reject) => {
+      res = resolve;
+    });
+    return [q, res];
+  };
+  const [gp, gres] = createDeferred();
+  const [fp, fres] = createDeferred();
+  const [rp, rres] = createDeferred();
+  window.gapiDeferred = gp
+  window.FBDeferred = fp;
+  window.grecaptchaDeferred = rp;
+  // will be called by Google client vendor script due to passed callback
+  // parameter
+  window.gapiAsyncInit = () => {
+    gapi.load('auth2', function () {
+      gapi.auth2.init().then(() => gres(gapi));
+    });
+  }
+  // will be called by ReCAPTCHA vendor script due to passed callback
+  // parameter
+  window.recaptchaAsyncInit = () => {
+    rres(grecaptcha);
+  }
+  // will be called by Facebook vendor script
+  window.fbAsyncInit = () => {
+    const appId = document.querySelector("meta[name='fb-app_id']").getAttribute("content");
+    FB.init({ appId, version: 'v3.2' });
+    fres(FB);
+  }
+})();

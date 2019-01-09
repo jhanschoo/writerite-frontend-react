@@ -24,7 +24,7 @@ WriteRite service.
 
 ## Setting up production
 
-The app is not yet production ready.
+The app is hosted by Netlify. Netlify's zero-config deployment for create-react-app should do the job. You may need to change the constants in `.env.production`.
 
 ## TODO
 

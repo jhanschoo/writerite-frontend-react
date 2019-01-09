@@ -17,6 +17,7 @@ enum Display {
 interface Props {
   card: WrCard;
   deckId: string;
+  mutable: boolean;
 }
 
 interface State {
@@ -67,38 +68,43 @@ class WrCardItem extends Component<Props, State> {
   }
 
   private readonly renderCardItemShow = () => {
+    const { mutable } = this.props;
     const { id, front, back } = this.props.card;
     const { handleShowInput, renderCardDelete } = this;
+    const cardSidesWidth = (mutable) ? 6 : 8;
+    const renderIfMutable = mutable && (
+      <Grid.Column width={4} textAlign="center">
+        <Button.Group>
+          <WrTooltip content="Edit">
+            <Button
+              icon="edit"
+              primary={true}
+              onClick={handleShowInput}
+            />
+          </WrTooltip>
+          <Mutation<CardDeleteData, CardDeleteVariables>
+            mutation={CARD_DELETE_MUTATION}
+            onError={printApolloError}
+          >
+            {renderCardDelete}
+          </Mutation>
+        </Button.Group>
+      </Grid.Column>
+    );
     return (
       <Card key={id}>
         <Card.Content>
           <Grid divided={true} stackable={true}>
             <Grid.Row>
-              <Grid.Column width={6}>
+              <Grid.Column width={cardSidesWidth}>
                 <Header sub={true}>Front</Header>
                 {front}
               </Grid.Column>
-              <Grid.Column width={6}>
+              <Grid.Column width={cardSidesWidth}>
                 <Header sub={true}>Back</Header>
                 {back}
               </Grid.Column>
-              <Grid.Column width={4} textAlign="center">
-                <Button.Group>
-                  <WrTooltip content="Edit">
-                    <Button
-                      icon="edit"
-                      primary={true}
-                      onClick={handleShowInput}
-                    />
-                  </WrTooltip>
-                  <Mutation<CardDeleteData, CardDeleteVariables>
-                    mutation={CARD_DELETE_MUTATION}
-                    onError={printApolloError}
-                  >
-                    {renderCardDelete}
-                  </Mutation>
-                </Button.Group>
-              </Grid.Column>
+              {renderIfMutable}
             </Grid.Row>
           </Grid>
         </Card.Content>

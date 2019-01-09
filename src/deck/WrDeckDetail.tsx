@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 import { WrState } from '../store';
 import { CurrentUser } from '../signin/types';
 
-import WrNavbar from '../WrNavbar';
 import WrCardsList from '../card/WrCardsList';
 import WrCardListNavbar from '../card/WrCardListNavbar';
 
@@ -19,7 +18,7 @@ type DeckDetailRouteProps = RouteComponentProps<{ deckId: string }>;
 type OwnProps = DeckDetailRouteProps;
 type DispatchProps = object;
 interface StateProps {
-  readonly user: CurrentUser | null;
+  readonly email: string | null;
 }
 type Props = StateProps & DispatchProps & OwnProps;
 
@@ -39,6 +38,7 @@ class WrRoomDetail extends PureComponent<Props> {
   private renderRoom = ({
     loading, error, data,
   }: QueryResult<DeckData, DeckVariables>) => {
+    const { email: userEmail } = this.props;
     const { name, owner: { email } } = (data && data.rwDeck) || {
       name: null,
       owner: {
@@ -73,7 +73,7 @@ class WrRoomDetail extends PureComponent<Props> {
                 {formattedOwner}
               </Card.Content>
               {formattedError}
-              <WrCardsList deckId={deckId} />
+              <WrCardsList deckId={deckId} mutable={!!(email && email === userEmail)} />
             </Card>
           </Container>
         </Segment>
@@ -83,8 +83,8 @@ class WrRoomDetail extends PureComponent<Props> {
 }
 
 const mapStateToProps = (state: WrState): StateProps => {
-  const user = (state.signin && state.signin.data && state.signin.data.user) || null;
-  return { user };
+  const email = (state.signin && state.signin.data && state.signin.data.user && state.signin.data.user.email) || null;
+  return { email };
 };
 
 export default withRouter<OwnProps>(

@@ -18,6 +18,7 @@ enum Display {
 
 interface Props {
   deck: WrDeck;
+  mutable: boolean;
 }
 
 interface State {
@@ -171,8 +172,21 @@ class WrDeckItem extends Component<Props, State> {
   }
 
   private readonly renderDeckItemShow = () => {
+    const { mutable } = this.props;
     const { id, name, owner: { email } } = this.props.deck;
     const { handleDisplayEdit, handleDisplayConfirmDelete } = this;
+    const renderIfMutable = mutable && (
+      <Card.Content textAlign="center" extra={true}>
+        <Button.Group>
+          <WrTooltip content="Edit">
+            <Button icon="edit" primary={true} onClick={handleDisplayEdit} />
+          </WrTooltip>
+          <WrTooltip content="Delete">
+            <Button icon="trash" color="red" onClick={handleDisplayConfirmDelete} />
+          </WrTooltip>
+        </Button.Group>
+      </Card.Content>
+    );
     return (
       <Card key={id} as={Link} from="/dashboard/deck" to={`/dashboard/deck/${id}`}>
         <Card.Content>
@@ -183,16 +197,7 @@ class WrDeckItem extends Component<Props, State> {
             by {email}
           </Card.Meta>
         </Card.Content>
-        <Card.Content textAlign="center" extra={true}>
-          <Button.Group>
-            <WrTooltip content="Edit">
-              <Button icon="edit" primary={true} onClick={handleDisplayEdit} />
-            </WrTooltip>
-            <WrTooltip content="Delete">
-              <Button icon="trash" color="red" onClick={handleDisplayConfirmDelete} />
-            </WrTooltip>
-          </Button.Group>
-        </Card.Content>
+        {renderIfMutable}
       </Card>
     );
   }

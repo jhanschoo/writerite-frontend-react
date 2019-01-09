@@ -15,10 +15,12 @@ import WrDeckCreate from './WrDeckCreate';
 import { connect } from 'react-redux';
 import { WrState } from '../store';
 import { initialState } from './reducers';
+import { initialState as initialSigninState } from '../signin/reducers';
 import WrDeckItem from './WrDeckItem';
 
 interface StateProps {
   readonly filter: string;
+  readonly email: string | null;
 }
 
 class WrDeckList extends PureComponent<StateProps> {
@@ -44,7 +46,7 @@ class WrDeckList extends PureComponent<StateProps> {
   private readonly renderList = ({
     subscribeToMore, loading, error, data,
   }: QueryResult<DecksData, DecksVariables>) => {
-    const { filter } = this.props;
+    const { email, filter } = this.props;
     if (error) {
       return null;
     }
@@ -67,7 +69,7 @@ class WrDeckList extends PureComponent<StateProps> {
       : data.rwDecks.filter((deck) => {
           return filter === '' || deck.name.includes(filter);
         }).map((deck: WrDeck) => (
-        <WrDeckItem key={deck.id} deck={deck} />
+        <WrDeckItem key={deck.id} deck={deck} mutable={!!(email === deck.owner.email)} />
       ));
     return (
       <>
@@ -83,7 +85,10 @@ class WrDeckList extends PureComponent<StateProps> {
 
 const mapStateToProps = (state: WrState): StateProps => {
   const { filter } = (state.deck) || initialState;
-  return { filter };
+  const { data } = state.signin || initialSigninState;
+  const { user } = data || { user: { email: null }};
+  const { email } = user;
+  return { email, filter };
 };
 
 export default connect(mapStateToProps)(WrDeckList);

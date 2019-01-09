@@ -6,7 +6,7 @@ import {
 } from './gql';
 import { printApolloError } from '../util';
 
-import { Card, Placeholder, Grid, Button } from 'semantic-ui-react';
+import { Card, Placeholder, Grid } from 'semantic-ui-react';
 import WrCardCreate from './WrCardCreate';
 import { WrCard } from './types';
 import WrCardItem from './WrCardItem';
@@ -21,7 +21,8 @@ interface StateProps {
 }
 
 interface OwnProps {
-  deckId: string;
+  readonly deckId: string;
+  readonly mutable: boolean;
 }
 type Props = StateProps & OwnProps;
 
@@ -70,7 +71,7 @@ class WrCardsList extends Component<Props> {
   private readonly renderComments = ({
     subscribeToMore, loading, error, data,
   }: QueryResult<CardsData, CardsVariables>) => {
-    const { filter } = this.props;
+    const { filter, mutable } = this.props;
     if (error) {
       return null;
     }
@@ -83,7 +84,7 @@ class WrCardsList extends Component<Props> {
       : data.rwCardsOfDeck.filter((room) => {
         return filter === '' || room.front.includes(filter) || room.back.includes(filter);
       }).map((card: WrCard) => {
-        return <WrCardItem key={card.id} card={card} deckId={deckId} />;
+        return <WrCardItem key={card.id} card={card} deckId={deckId} mutable={mutable} />;
       });
     return (
       <>
@@ -107,4 +108,4 @@ const mapStateToProps = (state: WrState): StateProps => {
   return { filter };
 };
 
-export default connect(mapStateToProps)(WrCardsList);
+export default connect<StateProps, {}, OwnProps, WrState>(mapStateToProps)(WrCardsList);

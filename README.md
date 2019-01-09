@@ -29,3 +29,20 @@ The app is hosted by Netlify. Netlify's zero-config deployment for create-react-
 ## TODO
 
 * Handle unexpected `null` GQL responses as errors requiring a `resetCache`.
+
+## Stack summary
+
+* Language: Typescript
+* Framework: React
+* Communication:
+  * API: pulls via GraphQL Subscriptions over WebSockets, usual CRUD via GraphQL Queries and Mutations over HTTP via Apollo Client.
+* Authentication:
+  * Third-party (Google or Facebook) identity verification: hand-rolled authorization flow; frontend obtains an access token issued by third-party verifying user's identity sent to the server for verification.
+  * Authorization managed using JWTs issued by server.
+* Form management: Formik, with verification using yup.
+* CSS Framework: Semantic UI
+* Other API: Gravatar
+* State management:
+  * Session-global: Redux
+  * Persistent: Apollo Cache
+* Deployment and build tooling: create-react-app with rescripts, published on Netlify

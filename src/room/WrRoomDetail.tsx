@@ -14,6 +14,7 @@ import WrRoomFeed from '../roomMessages/WrRoomFeed';
 import WrRoomDetailDeckSelector from './WrRoomDetailDeckSelector';
 import { WrState } from '../store';
 import { connect } from 'react-redux';
+import { User } from '../types';
 
 type RoomDetailRouteProps = RouteComponentProps<{ roomId: string }>;
 
@@ -63,19 +64,21 @@ class WrRoomDetail extends PureComponent<Props> {
     if (!loading && (!data || !data.rwRoom)) {
       return null;
     }
+    const { name, occupants, owner } = (data && data.rwRoom) || {
+      name: undefined, occupants: [] as User[], owner: undefined,
+    };
+    const occupantEmails = occupants.map(({ email }) => email);
+    const userAllowedInRoom = owner && ((owner.email === userEmail) || occupantEmails.includes(userEmail || ''));
     const formattedHeader = (data && data.rwRoom)
       ? (() => {
-        const { name, occupants, owner } = data.rwRoom;
-        const formattedOwnerInfo = (
+        const formattedOwnerInfo = owner && (
           <Header.Subheader>{owner.email} is hosting</Header.Subheader>
         );
-        const occupantEmails = occupants.map(({ email }) => email);
         const formattedOccupantEmails = occupantEmails && (
           <Header.Subheader>
             Also in this room: {occupantEmails.sort().join(', ')}
           </Header.Subheader>
         );
-        const userAllowedInRoom = (owner.email === userEmail) || occupantEmails.includes(userEmail || '');
         return (
           <Segment>
             <Grid stackable={true}>

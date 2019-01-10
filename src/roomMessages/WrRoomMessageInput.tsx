@@ -28,7 +28,6 @@ class WrRoomDetail extends Component<Props> {
           mutation={ROOM_MESSAGE_CREATE}
           onCompleted={this.handleMessageSent}
           onError={printApolloError}
-          ignoreResults={true}
         >
           {inputBox}
         </Mutation>

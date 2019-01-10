@@ -105,6 +105,11 @@ const client = new ApolloClient({
   cache,
   ssrForceFetchDelay: 100,
   connectToDevTools: process.env.NODE_ENV !== 'production',
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+    },
+  },
 });
 
 client.onResetStore(() => Promise.resolve(stateLink.writeDefaults()));

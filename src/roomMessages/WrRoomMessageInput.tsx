@@ -11,6 +11,7 @@ import { printApolloError } from '../util';
 
 interface OwnProps {
   roomId: string;
+  disabled?: boolean;
 }
 
 type Props = OwnProps;
@@ -39,7 +40,7 @@ class WrRoomDetail extends Component<Props> {
     mutate: MutationFn<RoomMessageCreateData, RoomMessageCreateVariables>,
     { loading }: MutationResult<RoomMessageCreateData>,
   ) => {
-    const { roomId } = this.props;
+    const { roomId, disabled } = this.props;
     const { inputValue } = this.state;
     const { handleInputMessageChange } = this;
     const handleSendMessage = () => mutate({
@@ -83,6 +84,7 @@ class WrRoomDetail extends Component<Props> {
         onChange={handleInputMessageChange}
         action={buttonProps}
         onKeyDown={handleKeyPress}
+        disabled={disabled}
       />
     );
   }

@@ -9,7 +9,6 @@ import { DECK_QUERY, DeckData, DeckVariables } from './gql';
 
 import { connect } from 'react-redux';
 import { WrState } from '../store';
-import { CurrentUser } from '../signin/types';
 
 import WrCardsList from '../card/WrCardsList';
 import WrCardListNavbar from '../card/WrCardListNavbar';
@@ -22,20 +21,20 @@ interface StateProps {
 }
 type Props = StateProps & DispatchProps & OwnProps;
 
-class WrRoomDetail extends PureComponent<Props> {
+class WrDeckDetail extends PureComponent<Props> {
 
   public readonly render = () => {
     const { match } = this.props;
     const { deckId } = match.params;
-    const { renderRoom } = this;
+    const { renderDeck } = this;
     return (
       <Query query={DECK_QUERY} variables={{ deckId }}>
-        {renderRoom}
+        {renderDeck}
       </Query>
     );
   }
 
-  private renderRoom = ({
+  private renderDeck = ({
     loading, error, data,
   }: QueryResult<DeckData, DeckVariables>) => {
     const { email: userEmail } = this.props;
@@ -88,5 +87,5 @@ const mapStateToProps = (state: WrState): StateProps => {
 };
 
 export default withRouter<OwnProps>(
-  connect<StateProps, {}, OwnProps>(mapStateToProps)(WrRoomDetail),
+  connect<StateProps, {}, OwnProps>(mapStateToProps)(WrDeckDetail),
 );

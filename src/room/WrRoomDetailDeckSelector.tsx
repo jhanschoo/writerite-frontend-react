@@ -13,6 +13,7 @@ interface Props {
   currentDeck?: WrDeck;
   onMutation?: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }
 
 class WrRoomDetailDeckSelector extends Component<Props> {
@@ -32,7 +33,7 @@ class WrRoomDetailDeckSelector extends Component<Props> {
   private readonly renderDeckSelector = ({
     loading, error, data,
   }: QueryResult<DecksData, DecksVariables>) => {
-    const { roomId, onMutation, loading: loadingOverride } = this.props;
+    const { roomId, onMutation, loading: loadingOverride, disabled } = this.props;
     if (error) {
       return null;
     }
@@ -70,6 +71,7 @@ class WrRoomDetailDeckSelector extends Component<Props> {
           loading={loadingOverride || loading || mutationLoading}
           onChange={handleDeckDropdownChange}
           value={this.props.currentDeck && this.props.currentDeck.id}
+          disabled={disabled}
         />
       );
     };
